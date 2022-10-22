@@ -5,6 +5,7 @@
 # Project files
 
 # User-specific stuff
+.git
 .idea
 .idea/**/workspace.xml
 .idea/**/tasks.xml

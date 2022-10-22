@@ -58,6 +58,18 @@ def eliminate(space, p, fix, num_ball):
             space.remove(shape, shape.body)
 
 
+def examine_success(space, num_ball):
+    success = 0
+    for ball in space.bodies[-num_ball:]:
+        if ball.position[1] > HEIGHT:
+            success += 1
+    if success == num_ball:
+        print('Success!')
+        return True
+    else:
+        return False
+
+
 def simulate(game='support', gravity=(0., 100.0)):
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -77,6 +89,8 @@ def simulate(game='support', gravity=(0., 100.0)):
     num_ball = len(game_paras[game]['ball'])
 
     while True:
+        if examine_success(space, num_ball):
+            sys.exit(0)
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit(0)
