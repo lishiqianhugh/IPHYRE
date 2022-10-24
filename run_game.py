@@ -26,9 +26,9 @@ def add_line(space, l_pos=((360.0, 360.0), (360.0, 600.0)), fix=0, friction=0.4,
     static_shape.friction = friction
     static_shape.elasticity = elasticity
     if fix:
-        static_shape.color = (0, 0, 255, 255)
+        static_shape.color = (0, 0, 0, 255)
     else:
-        static_shape.color = (0, 255, 200, 255)
+        static_shape.color = (164, 164, 164, 255)
     space.add(static_body, static_shape)
     return static_shape
 
@@ -64,11 +64,16 @@ def examine_success(space, num_ball):
         if ball.position[1] > HEIGHT:
             success += 1
     if success == num_ball:
-        print('Success!')
         return True
     else:
         return False
 
+
+def add_text(screen):
+    font = pygame.font.Font(None, 100)
+    text = """Success!"""
+    text = font.render(text, True, pygame.Color("green"))
+    screen.blit(text, (150, 100))
 
 def simulate(game='support', gravity=(0., 100.0)):
     pygame.init()
@@ -88,9 +93,9 @@ def simulate(game='support', gravity=(0., 100.0)):
         add_ball(space, b_para[:2], b_para[2], mass=1.0, elasticity=0.1)
     num_ball = len(game_paras[game]['ball'])
 
+
     while True:
-        if examine_success(space, num_ball):
-            sys.exit(0)
+        screen.fill((255, 255, 255))
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit(0)
@@ -101,8 +106,9 @@ def simulate(game='support', gravity=(0., 100.0)):
                 eliminate(space, p, game_paras[game]['fix'], num_ball)
 
         space.step(1/60.0)
-        screen.fill((255, 255, 255))
         space.debug_draw(draw_options)
+        if examine_success(space, num_ball):
+            add_text(screen)
         pygame.display.flip()
         clock.tick(50)
 
