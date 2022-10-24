@@ -12,18 +12,19 @@ game, mode = sys.argv[1], sys.argv[2]
 num_ball = len(game_paras[game]['ball'])
 
 
-def add_ball(space, b_pos, radius, mass, elasticity):
+def add_ball(space, b_pos, radius, mass, elasticity, friction):
     moment = pymunk.moment_for_circle(mass, 0, radius)
     body = pymunk.Body(mass, moment)
     body.position = b_pos[0], b_pos[1]
     shape = pymunk.Circle(body, radius)
     shape.elasticity = elasticity
+    shape.friction = friction
     shape.color = (255, 0, 0, 255)
     space.add(body, shape)
     return shape
 
 
-def add_line(space, l_pos=((360.0, 360.0), (360.0, 600.0)), fix=0, friction=0.4, elasticity=1.0,):
+def add_line(space, l_pos=((360.0, 360.0), (360.0, 600.0)), fix=0, friction=0.5, elasticity=1.0,):
     static_body = pymunk.Body(body_type=pymunk.Body.STATIC)
     # static_body.position = l_pos[0][0] + l_pos[1][0] / 2, l_pos[0][1] + l_pos[1][1] / 2
     static_shape = pymunk.Segment(static_body, l_pos[0], l_pos[1], 10)
@@ -95,7 +96,7 @@ def simulate(game='support', gravity=(0., 100.0)):
     for l_para, fix in zip(game_paras[game]['block'], game_paras[game]['fix']):
         add_line(space, l_para, fix)
     for b_para in game_paras[game]['ball']:
-        add_ball(space, b_para[:2], b_para[2], mass=1.0, elasticity=0.1)
+        add_ball(space, b_para[:2], b_para[2], mass=1.0, elasticity=0.1, friction=0.5)
 
     while True:
         screen.fill((255, 255, 255))
@@ -124,7 +125,7 @@ def collect_data(game='support', action=None, gravity=(0., 100.0)):
     for l_para, fix in zip(game_paras[game]['block'], game_paras[game]['fix']):
         add_line(space, l_para, fix)
     for b_para in game_paras[game]['ball']:
-        add_ball(space, b_para[:2], b_para[2], mass=1.0, elasticity=0.1)
+        add_ball(space, b_para[:2], b_para[2], mass=1.0, elasticity=0.1, friction=0.5)
 
     step, clock = 0, 0
     a, t = action[step][0], action[step][1]
