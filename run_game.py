@@ -7,6 +7,9 @@ import pymunk.pygame_util
 from game_paras import game_paras
 
 HEIGHT, WIDTH = 600, 600
+timestep = 1 / 60.0
+game, mode = sys.argv[1], sys.argv[2]
+num_ball = len(game_paras[game]['ball'])
 
 
 def add_ball(space, b_pos, radius, mass, elasticity):
@@ -22,6 +25,7 @@ def add_ball(space, b_pos, radius, mass, elasticity):
 
 def add_line(space, l_pos=((360.0, 360.0), (360.0, 600.0)), fix=0, friction=0.4, elasticity=1.0,):
     static_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+    # static_body.position = l_pos[0][0] + l_pos[1][0] / 2, l_pos[0][1] + l_pos[1][1] / 2
     static_shape = pymunk.Segment(static_body, l_pos[0], l_pos[1], 10)
     static_shape.friction = friction
     static_shape.elasticity = elasticity
@@ -71,9 +75,10 @@ def examine_success(space, num_ball):
 
 def add_text(screen):
     font = pygame.font.Font(None, 100)
-    text = """Success!"""
+    text = "Success!"
     text = font.render(text, True, pygame.Color("green"))
     screen.blit(text, (150, 100))
+
 
 def simulate(game='support', gravity=(0., 100.0)):
     pygame.init()
@@ -91,8 +96,6 @@ def simulate(game='support', gravity=(0., 100.0)):
         add_line(space, l_para, fix)
     for b_para in game_paras[game]['ball']:
         add_ball(space, b_para[:2], b_para[2], mass=1.0, elasticity=0.1)
-    num_ball = len(game_paras[game]['ball'])
-
 
     while True:
         screen.fill((255, 255, 255))
@@ -105,7 +108,7 @@ def simulate(game='support', gravity=(0., 100.0)):
                 p = event.pos
                 eliminate(space, p, game_paras[game]['fix'], num_ball)
 
-        space.step(1/60.0)
+        space.step(timestep)
         space.debug_draw(draw_options)
         if examine_success(space, num_ball):
             add_text(screen)
@@ -113,14 +116,33 @@ def simulate(game='support', gravity=(0., 100.0)):
         clock.tick(50)
 
 
-def collect_data():
-    raise NotImplementedError()
+def collect_data(game='support', action=None, gravity=(0., 100.0)):
+    space = pymunk.Space()
+    space.gravity = gravity
+    # add bodies
+    assert len(game_paras[game]['block']) == len(game_paras[game]['fix'])
+    for l_para, fix in zip(game_paras[game]['block'], game_paras[game]['fix']):
+        add_line(space, l_para, fix)
+    for b_para in game_paras[game]['ball']:
+        add_ball(space, b_para[:2], b_para[2], mass=1.0, elasticity=0.1)
+
+    step, clock = 0, 0
+    a, t = action[step][0], action[step][1]
+    total_step = len(action)
+    while True:
+        for i, body in enumerate(space.bodies):
+            print(body.position)
+        if clock == t and step < total_step:
+            p = space.bodies[a].position
+            eliminate(space, p, game_paras[game]['fix'], num_ball)
+        space.step(timestep)
+        clock += timestep
+        step += 1
 
 
 if __name__ == '__main__':
-    game, mode = sys.argv[1], sys.argv[2]
     if mode == 'play':
         simulate(game)
     elif mode == 'collect':
-        collect_data()
-
+        action = [[1, 1], [2, 2]]
+        collect_data(game, action)
