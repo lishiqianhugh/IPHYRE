@@ -1,4 +1,5 @@
 import sys
+import time
 import pygame
 from pygame.locals import *
 import pymunk
@@ -21,6 +22,14 @@ class IPHYRE():
 
         self.space = pymunk.Space()
         self.space.gravity = self.G
+
+        self.solutions = {
+            'support': [[(250., 400.), 1], [(250., 500.), 1.5]],
+            'hinder': [[(450., 320.), 1], [(500., 320.), 1.5]],
+            'direction': [[(150., 180.), 1], [(100., 350.), 1.5]],
+            'hole': [[(250., 100.), 1], [(250., 150.), 2.]],
+            'multi_balls': [[(300., 200.), 1]]
+        }
 
         if self.mode != 'collect':
             pygame.init()
@@ -85,11 +94,10 @@ class IPHYRE():
         else:
             return False
 
-    def add_text(self):
+    def add_text(self, text="Success!", loc=(150, 100)):
         font = pygame.font.Font(None, 100)
-        text = "Success!"
         text = font.render(text, True, pygame.Color("green"))
-        self.screen.blit(text, (150, 100))
+        self.screen.blit(text, loc)
 
     def play(self):
         self.add_all()
@@ -113,50 +121,59 @@ class IPHYRE():
 
     def simulate(self, action=None):
         self.add_all()
-        step, time = 0, 0
+        step, time_count = 0, 0
         total_step = len(action)
-        while time < self.max_time:
+        while time_count < self.max_time:
             self.screen.fill((255, 255, 255))
             if step < total_step:
                 p, t = action[step][0], action[step][1]
-                if time >= t:
+                if time_count >= t:
                     # p = space.bodies[a].position
                     if self.eliminate(p, game_paras[self.game]['fix']):
-                        print(f'Step {step}: Click {p} at time {time}.')
+                        print(f'Step {step}: Click {p} at time {time_count}.')
                         step += 1
 
             self.space.step(self.timestep)
-            time += self.timestep
+            time_count += self.timestep
             self.space.debug_draw(self.draw_options)
             if self.examine_success():
+                print(f'###### Success at time {time_count} ######')
                 self.add_text()
+                pygame.display.flip()
+                time.sleep(2)
+                sys.exit()
             pygame.display.flip()
             self.clock.tick(self.FPS)
+        self.add_text(text="Failed", loc=(200, 100))
+        pygame.display.flip()
+        time.sleep(2)
 
     def collect_data(self, action=None):
         self.add_all()
-        step, time = 0, 0
+        step, time_count = 0, 0
         total_step = len(action)
-        while time < self.max_time:
+        while time_count < self.max_time:
             if step < total_step:
                 p, t = action[step][0], action[step][1]
-                if time >= t:
+                if time_count >= t:
                     # p = space.bodies[a].position
                     if self.eliminate(p, game_paras[self.game]['fix']):
-                        print(f'Step {step}: Click {p} at time {time}.')
+                        print(f'Step {step}: Click {p} at time {time_count}.')
                         step += 1
                         for body in self.space.bodies:
                             print(body.position)
 
             self.space.step(self.timestep)
-            time += self.timestep
+            time_count += self.timestep
             if self.examine_success():
-                print(f'###### Success at time {time} ######')
+                print(f'###### Success at time {time_count} ######')
                 for body in self.space.bodies:
                     print(body.position)
                 sys.exit()
 
-    def run(self, action):
+    def run(self, action=None):
+        if action is None:
+            action = self.solutions[self.game]
         if self.mode == 'play':
             self.play()
         elif self.mode == 'simulate':
@@ -169,5 +186,4 @@ class IPHYRE():
 
 if __name__ == '__main__':
     demo = IPHYRE()
-    act = [[(450., 320.), 1], [(500., 320.), 1.5]]  # hinder
-    demo.run(act)
+    demo.run()
