@@ -49,9 +49,10 @@ game_paras = {'support':
               }
 
 ```
-You can run `run_game.py` by specifying `game_name` and `mode` to 'play' or 'collect' with certain game:
+You can run `run_game.py` by specifying `game_name` and `mode` to 'play', 'simulate' or 'collect' with certain game:
 ```angular2html
 python run_game.py hinder play
 ```
 * **Play:** play the game in a UI with keyboard signals to eliminate blocks.
+* **Simulate:** simulate the game with the specified actions and present in a UI.
 * **Collect data:** run the simulator to get data of states without a UI.
