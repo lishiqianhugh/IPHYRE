@@ -109,9 +109,9 @@ class IPHYRE():
         else:
             return False
 
-    def add_text(self, text="Success!", loc=(150, 100)):
-        font = pygame.font.Font(None, 100)
-        text = font.render(text, True, pygame.Color("green"))
+    def add_text(self, text="Success!", loc=(230, 30), color="green"):
+        font = pygame.font.Font(None, 50)
+        text = font.render(text, True, pygame.Color(color))
         self.screen.blit(text, loc)
 
     def play(self):
@@ -159,7 +159,7 @@ class IPHYRE():
                 sys.exit()
             pygame.display.flip()
             self.clock.tick(self.FPS)
-        self.add_text(text="Failed", loc=(200, 100))
+        self.add_text(text="Failed", loc=(245, 30), color="red")
         pygame.display.flip()
         time.sleep(2)
 
