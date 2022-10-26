@@ -1,11 +1,12 @@
 '''
-block: [[x1, y1],[x2, y2]]
-fix: 0/1
+block: [[x1, y1],[x2, y2]] with a radius of 10
+eli: 0/1 indicates whether the block can be eliminated
+dynamic: 0/1 indicates whether the block can move under Newtonian laws
 ball: [X, Y, Radius]
 When designing, be careful about the following points:
 1. the original point is at the left-top corner of the screen
 2. when specifying the vertices of blocks, try to write from smaller numbers to larger numbers
-3. the number of blocks equals to the number of fix.
+3. the number of blocks equals to the number of eli and the number of dynamic.
 '''
 
 game_paras = {'support':
@@ -13,7 +14,8 @@ game_paras = {'support':
                              [[200., 500.], [300., 500.]],
                              [[400., 400.], [500., 400.]],
                              [[400., 500.], [500., 500.]]],
-                   'fix': [0, 0, 0, 0],
+                   'eli': [1, 1, 1, 1],
+                   'dynamic': [0, 0, 0, 0],
                    'ball': [[250., 340., 20.]]
                    },
               'hinder':
@@ -21,7 +23,8 @@ game_paras = {'support':
                              [[450., 300.], [450., 380.]],
                              [[500., 300.], [500., 380.]],
                              [[200., 150.], [300., 200.]]],
-                   'fix': [1, 0, 0, 0],
+                   'eli': [0, 1, 1, 1],
+                   'dynamic': [0, 0, 0, 0],
                    'ball': [[250., 100., 20.]]
                    },
               'direction':
@@ -30,7 +33,8 @@ game_paras = {'support':
                              [[500., 300.], [500., 380.]],
                              [[100., 150.], [280., 250.]],
                              [[320., 250.], [500., 150.]]],
-                   'fix': [1, 0, 0, 0, 0],
+                   'eli': [0, 1, 1, 1, 1],
+                   'dynamic': [0, 0, 0, 0, 0],
                    'ball': [[300., 100., 50.]]
                    },
               'hole':
@@ -41,14 +45,16 @@ game_paras = {'support':
                              [[200., 150.], [300., 200.]],
                              [[250., 100.], [250., 150.]],
                              ],
-                   'fix': [1, 1, 0, 0, 0, 0],
+                   'eli': [0, 0, 1, 1, 1, 1],
+                   'dynamic': [0, 0, 0, 0, 0, 0],
                    'ball': [[220., 120., 20.]]
                    },
               'multi_balls':
                   {'block': [[[250., 200.], [350., 200.]],
                              [[150., 400.], [230., 400.]],
                              [[370., 400.], [450., 400.]]],
-                   'fix': [0, 0, 0],
+                   'eli': [1, 1, 1],
+                   'dynamic': [0, 0, 0],
                    'ball': [[300., 130., 60.],
                             [190., 330., 60.],
                             [410., 330., 60.]]
