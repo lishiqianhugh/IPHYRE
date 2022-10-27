@@ -90,10 +90,10 @@ class IPHYRE():
         for i, body in enumerate(self.space.bodies[:-self.num_ball]):
             shape = list(body.shapes)[0]
             x, y = body.position
-            min_0 = min(shape.a[0], shape.b[0]) + x - 10
-            max_0 = max(shape.a[0], shape.b[0]) + x + 10
-            min_1 = min(shape.a[1], shape.b[1]) + y - 10
-            max_1 = max(shape.a[1], shape.b[1]) + y + 10
+            min_0 = x - 10
+            max_0 = x + 10
+            min_1 = y - 10
+            max_1 = y + 10
             if eli[i] == 1 and min_0 < p[0] < max_0 and min_1 < p[1] < max_1:
                 self.space.remove(shape, shape.body)
                 return True
