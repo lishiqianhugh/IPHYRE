@@ -4,14 +4,17 @@ import pygame
 from pygame.locals import *
 import pymunk
 import pymunk.pygame_util
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import pymunk.matplotlib_util
 
 from game_paras import game_paras
-
+import pdb
 
 class IPHYRE():
     def __init__(self):
         self.game, self.mode = sys.argv[1], sys.argv[2]
-        self.HEIGHT, self.WIDTH = 600, 600
+        self.HEIGHT, self.WIDTH = 1000, 1000
         self.FPS = 60
         self.timestep = 1 / self.FPS
         self.max_time = 10
@@ -28,7 +31,7 @@ class IPHYRE():
             'hinder': [[(450., 320.), 1], [(500., 320.), 1.5]],
             'direction': [[(150., 180.), 1], [(100., 350.), 1.5]],
             'hole': [[(250., 100.), 1], [(250., 150.), 2.]],
-            'multi_balls': [[(300., 200.), 1]]
+            'multi_balls': [[(500., 400.), 1]]
         }
 
         if self.mode != 'collect':
@@ -37,6 +40,7 @@ class IPHYRE():
             pygame.display.set_caption(f"Interactive Physical Reasoning: {self.game}")
             self.clock = pygame.time.Clock()
             self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
+       
 
     def add_ball(self, b_pos, radius, mass, elasticity, friction):
         moment = pymunk.moment_for_circle(mass, 0, radius)
@@ -163,10 +167,13 @@ class IPHYRE():
         pygame.display.flip()
         time.sleep(2)
 
-    def collect_data(self, action=None):
+    def collect_data(self, action=None,fps=2): #maxmimum fps=60
         self.add_all()
         step, time_count = 0, 0
         total_step = len(action)
+        interval  =  self.FPS / fps
+        interval_cal = 0
+        positions = []
         while time_count < self.max_time:
             if step < total_step:
                 p, t = action[step][0], action[step][1]
@@ -179,12 +186,31 @@ class IPHYRE():
                             print(body.position)
 
             self.space.step(self.timestep)
+            if(interval_cal == interval or interval_cal ==0):
+                interval_cal = 0
+                for body in self.space.bodies:
+                    positions.append(body.position)
+            #self.draw_options = pymunk.SpaceDebugDrawOptions()
+                fig = plt.figure(figsize=(14,10))
+                ax = plt.axes(xlim=(0, 1000), ylim=(0, 1000))
+                ax.set_aspect("equal")
+                ax.invert_yaxis()
+                o = pymunk.matplotlib_util.DrawOptions(ax)
+                a = self.space.debug_draw(o)
+                fig.savefig('try.png')
+                pdb.set_trace()
+
+            interval_cal += 1
             time_count += self.timestep
+            
+        
+    
             if self.examine_success():
                 print(f'###### Success at time {time_count} ######')
                 for body in self.space.bodies:
                     print(body.position)
                 sys.exit()
+       
 
     def run(self, action=None):
         if action is None:
