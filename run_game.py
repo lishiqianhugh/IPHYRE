@@ -21,10 +21,11 @@ class IPHYRE():
         self.max_time = 10
 
         self.blocks = game_paras[self.game]['block']
-        self.eli = game_paras[self.game]['eli']
-        self.dynamic = game_paras[self.game]['dynamic']
         self.balls = game_paras[self.game]['ball']
         self.num_ball = len(self.balls)
+        self.eli = game_paras[self.game]['eli'][:-self.num_ball]
+        self.dynamic = game_paras[self.game]['dynamic'][:-self.num_ball]
+
         self.b_mass, self.b_elasticity, self.b_friction = 1.0, 0.1, 0.5
         self.l_friction, self.l_elasticity = 0.5, 0.1
         self.G = (0., 100.0)

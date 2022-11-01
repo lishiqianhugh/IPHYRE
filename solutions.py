@@ -13,4 +13,8 @@ sol = {
             'noisy_hole': [],
             'noisy_fill': [],
             'noisy_lever': [],
+            'noisy_angle': [],
+            'support_hinder': [],
+            'support_direction': [],
+            'support_hole': [],
         }
