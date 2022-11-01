@@ -17,4 +17,6 @@ sol = {
             'support_hinder': [],
             'support_direction': [],
             'support_hole': [],
+            'more_step_support': [],
+            'more_step_hole': [],
         }
