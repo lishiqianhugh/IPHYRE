@@ -37,7 +37,9 @@ class IPHYRE():
             'direction': [[(150., 180.), 1], [(100., 350.), 1.5]],
             'hole': [[(250., 100.), 1], [(250., 150.), 2.]],
             'multi_balls': [[(500., 400.), 1]],
-            'fill': []
+            'fill': [],
+            'lever': [],
+            'angle': [],
         }
 
         if self.mode != 'collect':
