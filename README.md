@@ -68,15 +68,16 @@ Run `play_all.sh` to play all games.
 #### Output content:
 store in **data/{game_name}/{action_index}**
 
-  - images: 
-    - game image for each frame
-  - action.npy: 
-    - the postion and timestep of this specific action
-  - vectors.npy 
-     - [0]: **shape**(0 for ball and 1 for block)
-     - [1:6]: **property**  
-        - For ball: [1:3] is center position; [3:5] is padding; [5] is radius
-        - For block: [1:5] is line position; [5] is radius
-     - [7]: **eli**(if the object can be eliminate, the value is 1 otherwise 0)
-     - [8]: **dynamic**(if the object is dynamic, the value is 1 otherwise 0)
+##### images: 
+ - game image for each frame
+##### action.npy: 
+- the postion and timestep of this specific action
+##### vectors.npy: 
+ - vectors[0]: **shape**
+    - 0 for ball and 1 for block
+ - vectors[1:6]: **property**  
+    - For ball: [1:3] is center position; [3:5] is padding; [5] is radius
+    - For block: [1:5] is line position; [5] is radius
+ - vectors[7]: **eli**(if the object can be eliminate, the value is 1 otherwise 0)
+ - vectors[8]: **dynamic**(if the object is dynamic, the value is 1 otherwise 0)
 
