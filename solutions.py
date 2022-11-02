@@ -19,4 +19,6 @@ sol = {
             'support_hole': [],
             'more_step_support': [],
             'more_step_hole': [],
+            'more_ball_support': [],
+            'more_ball_hole': [],
         }
