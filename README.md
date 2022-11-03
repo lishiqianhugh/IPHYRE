@@ -60,6 +60,7 @@ python run_game.py hinder play
 * **Collect data:** run the simulator to get data of states without a UI.
 
 Run `play_all.sh` to play all games.
+
 ## API
 ### collect_data
 #### Input: 
@@ -69,15 +70,15 @@ Run `play_all.sh` to play all games.
 store in **data/{game_name}/{action_index}**
 
 ##### images: 
- - game image for each frame
-##### action.npy: 
-- the postion and timestep of this specific action
+- game image for each frame
+##### actions.npy: 
+- the position and timestep of this specific sequence of actions
 ##### vectors.npy: 
  - vectors[0]: **shape**
     - 0 for ball and 1 for block
  - vectors[1:6]: **property**  
     - For ball: [1:3] is center position; [3:5] is padding; [5] is radius
     - For block: [1:5] is line position; [5] is radius
- - vectors[7]: **eli**(if the object can be eliminate, the value is 1 otherwise 0)
+ - vectors[7]: **eli**(if the object can be eliminated, the value is 1 otherwise 0)
  - vectors[8]: **dynamic**(if the object is dynamic, the value is 1 otherwise 0)
 
