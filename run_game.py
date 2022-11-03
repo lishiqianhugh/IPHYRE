@@ -209,7 +209,7 @@ class IPHYRE():
                 os.makedirs(img_path)
                 act_pos = np.array([list(a[0]) for a in act_list])
                 act_ts = np.array([a[1] for a in act_list])
-                np.save(data_path + 'action.npy', np.concatenate((act_pos, act_ts.reshape(-1, 1)), axis=-1))
+                np.save(data_path + 'actions.npy', np.concatenate((act_pos, act_ts.reshape(-1, 1)), axis=-1))
             else:
                 continue  # already get the data stored
             step, time_count = 0, 0.
