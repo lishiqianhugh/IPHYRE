@@ -1,9 +1,9 @@
 sol = {
             'support': [[(250., 400.), 1], [(250., 500.), 1.5]],
             'hinder': [[(450., 320.), 1], [(500., 320.), 1.5]],
-            'direction': [[(150., 180.), 1], [(100., 350.), 1.5]],
+            'direction': [[(240., 220.), 1], [(200., 340.), 1.5]],
             'hole': [[(250., 100.), 1], [(250., 150.), 2.]],
-            'multi_balls': [[(300., 200.), 1]],
+            'multi_balls': [[(500., 400.), 1]],
             'fill': [],
             'lever': [],
             'angle': [],
@@ -17,4 +17,8 @@ sol = {
             'support_hinder': [],
             'support_direction': [],
             'support_hole': [],
+            'more_step_support': [],
+            'more_step_hole': [],
+            'more_ball_support': [],
+            'more_ball_hole': [],
         }
