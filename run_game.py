@@ -13,6 +13,7 @@ from solutions import sol
 import pdb
 import os
 import itertools
+from copy import deepcopy
 
 
 class IPHYRE():
@@ -29,8 +30,8 @@ class IPHYRE():
         self.property = []
 
         self.num_ball = len(self.balls)
-        self.eli = game_paras[self.game]['eli']
-        self.dynamic = game_paras[self.game]['dynamic']
+        self.eli = deepcopy(game_paras[self.game]['eli'])
+        self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
 
         self.b_mass, self.b_elasticity, self.b_friction = 1.0, 0.1, 0.5
         self.l_friction, self.l_elasticity = 0.5, 0.1
@@ -47,6 +48,17 @@ class IPHYRE():
             pygame.display.set_caption(f"Interactive Physical Reasoning: {self.game}")
             self.clock = pygame.time.Clock()
             self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
+
+    def reset(self):
+        for body in self.space.bodies:
+            shape = list(body.shapes)[0]
+            self.space.remove(shape, shape.body)
+        self.screen.fill((255, 255, 255))
+        self.add_all()
+        self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
+        self.eli = deepcopy(game_paras[self.game]['eli'])
+        self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
+       
 
     def add_ball(self, b_pos, radius, mass, elasticity, friction):
         moment = pymunk.moment_for_circle(mass, 0, radius)
@@ -87,8 +99,8 @@ class IPHYRE():
         self.space.add(body, shape)
 
     def add_all(self):
-        assert len(self.blocks) == len(self.eli[:-self.num_ball])
-        for l_para, eli, dynamics in zip(self.blocks, self.eli[:-self.num_ball], self.dynamic[:-self.num_ball]):
+        assert len(self.blocks) == len(game_paras[self.game]['eli'][:-self.num_ball])
+        for l_para, eli, dynamics in zip(self.blocks, game_paras[self.game]['eli'][:-self.num_ball], game_paras[self.game]['dynamic'][:-self.num_ball]):
             if dynamics:
                 self.add_dynamic_line(l_para, self.l_friction, self.l_elasticity)
             else:
@@ -126,10 +138,18 @@ class IPHYRE():
         font = pygame.font.Font(None, 50)
         text = font.render(text, True, pygame.Color(color))
         self.screen.blit(text, loc)
+        self.add_restart()
+
+    def add_restart(self, text="Press space to Restart", loc=(200, 200), color="blue"):
+        font = pygame.font.Font(None, 30)
+        text = font.render(text, True, pygame.Color(color))
+        self.screen.blit(text, loc)
 
     def play(self):
         self.add_all()
-        while True:
+        finish_game = False
+        time_count = 0
+        while time_count < self.max_time + self.timestep:
             self.screen.fill((255, 255, 255))
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -139,13 +159,28 @@ class IPHYRE():
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     p = event.pos
                     self.eliminate(p)
-
-            self.space.step(self.timestep)
-            self.space.debug_draw(self.draw_options)
+                elif event.type == KEYDOWN and event.key == K_SPACE and finish_game:
+                    finish_game = False
+                    time_count = 0
+                    self.reset() 
+            time_count += self.timestep
+            if(time_count >= self.max_time - self.timestep):
+                self.add_text(text="Failed", loc=(245, 30), color="red")
+                finish_game = True
+                time_count = self.max_time  
             if self.examine_success():
                 self.add_text()
+                finish_game = True
+                time_count = 0             
+            self.space.step(self.timestep)
+            self.space.debug_draw(self.draw_options)
+            
             pygame.display.flip()
             self.clock.tick(self.FPS)
+            
+
+    
+        
 
     def simulate(self, action=None):
         self.add_all()
@@ -286,3 +321,4 @@ class IPHYRE():
 if __name__ == '__main__':
     demo = IPHYRE()
     demo.run()
+
