@@ -134,14 +134,8 @@ class IPHYRE():
         else:
             return False
 
-    def add_text(self, text="Success!", loc=(230, 30), color="green"):
-        font = pygame.font.Font(None, 50)
-        text = font.render(text, True, pygame.Color(color))
-        self.screen.blit(text, loc)
-        self.add_restart()
-
-    def add_restart(self, text="Press space to Restart", loc=(200, 200), color="blue"):
-        font = pygame.font.Font(None, 30)
+    def add_text(self, text="Success!", loc=(230, 30), color="green", font=50):
+        font = pygame.font.Font(None, font)
         text = font.render(text, True, pygame.Color(color))
         self.screen.blit(text, loc)
 
@@ -165,14 +159,16 @@ class IPHYRE():
                     time_count = 0
                     self.reset() 
             time_count += self.timestep
-            if(time_count >= self.max_time - self.timestep):
+            if time_count >= self.max_time - self.timestep:
                 self.add_text(text="Failed", loc=(245, 30), color="red")
+                self.add_text(text="Press space to Restart", loc=(200, 200), color="blue", font=30)
                 finish_game = True
                 time_count = self.max_time
                 exceed_time = True
               
             if not exceed_time and self.examine_success():
-                self.add_text()
+                self.add_text(text="Success!", loc=(230, 30), color="green")
+                self.add_text(text="Press space to Restart", loc=(200, 200), color="blue", font=30)
                 finish_game = True
                 time_count = 0             
             self.space.step(self.timestep)
@@ -180,10 +176,6 @@ class IPHYRE():
             
             pygame.display.flip()
             self.clock.tick(self.FPS)
-            
-
-    
-        
 
     def simulate(self, action=None):
         self.add_all()
