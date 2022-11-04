@@ -148,6 +148,7 @@ class IPHYRE():
     def play(self):
         self.add_all()
         finish_game = False
+        exceed_time = False
         time_count = 0
         while time_count < self.max_time + self.timestep:
             self.screen.fill((255, 255, 255))
@@ -167,8 +168,10 @@ class IPHYRE():
             if(time_count >= self.max_time - self.timestep):
                 self.add_text(text="Failed", loc=(245, 30), color="red")
                 finish_game = True
-                time_count = self.max_time  
-            if self.examine_success():
+                time_count = self.max_time
+                exceed_time = True
+              
+            if not exceed_time and self.examine_success():
                 self.add_text()
                 finish_game = True
                 time_count = 0             
