@@ -7,6 +7,8 @@ sol = {
             'fill': [],
             'lever': [],
             'angle': [],
+            'impulse': [],
+            'noisy_impulse': [],
             'noisy_support': [],
             'noisy_hinder': [],
             'noisy_direction': [],

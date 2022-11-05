@@ -58,7 +58,6 @@ class IPHYRE():
         self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
         self.eli = deepcopy(game_paras[self.game]['eli'])
         self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
-       
 
     def add_ball(self, b_pos, radius, mass, elasticity, friction):
         moment = pymunk.moment_for_circle(mass, 0, radius)
@@ -161,14 +160,14 @@ class IPHYRE():
             time_count += self.timestep
             if time_count >= self.max_time - self.timestep:
                 self.add_text(text="Failed", loc=(245, 30), color="red")
-                self.add_text(text="Press space to Restart", loc=(200, 200), color="blue", font=30)
+                self.add_text(text="Press space to Restart", loc=(200, 70), color="blue", font=30)
                 finish_game = True
                 time_count = self.max_time
                 exceed_time = True
               
             if not exceed_time and self.examine_success():
                 self.add_text(text="Success!", loc=(230, 30), color="green")
-                self.add_text(text="Press space to Restart", loc=(200, 200), color="blue", font=30)
+                self.add_text(text="Press space to Restart", loc=(200, 70), color="blue", font=30)
                 finish_game = True
                 time_count = 0             
             self.space.step(self.timestep)
