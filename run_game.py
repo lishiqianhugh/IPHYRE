@@ -217,26 +217,18 @@ class IPHYRE():
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     p = event.pos
                     button_pressed = self.button_process()
-                    if(not button_pressed):
+                    if not button_pressed:
                         self.eliminate(p)
                     else:
                         time_count = 0
-                elif event.type == KEYDOWN and event.key == K_SPACE and finish_game:
-                    finish_game = False
-                    time_count = 0
-                    self.reset() 
             time_count += self.timestep
             if time_count >= self.max_time - self.timestep:
                 self.add_text(text="Failed", loc=(245, 30), color="red")
-                self.add_text(text="Press space to Restart", loc=(200, 70), color="blue", font=30)
-                finish_game = True
                 time_count = self.max_time
                 exceed_time = True
               
             if not exceed_time and self.examine_success():
                 self.add_text(text="Success!", loc=(230, 30), color="green")
-                self.add_text(text="Press space to Restart", loc=(200, 70), color="blue", font=30)
-                finish_game = True
                 time_count = 0             
             self.space.step(self.timestep)
             self.space.debug_draw(self.draw_options)
