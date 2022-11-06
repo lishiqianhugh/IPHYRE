@@ -9,6 +9,7 @@ sol = {
             'angle': [],
             'impulse': [],
             'pendulum': [],
+            'spring_pendulum': [],
             'noisy_impulse': [],
             'noisy_support': [],
             'noisy_hinder': [],

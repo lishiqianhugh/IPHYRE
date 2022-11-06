@@ -132,7 +132,7 @@ class IPHYRE():
 
     def add_spring(self):
         for (b1, b2) in game_paras[self.game]['spring']:
-            c = pymunk.DampedSpring(self.space.bodies[b1], self.space.bodies[b2], (30, 0), (-30, 0), 20, 2, 0.3)
+            c = pymunk.DampedSpring(self.space.bodies[b1], self.space.bodies[b2], (30, 0), (-30, 0), 20, 1, 0.3)
             self.space.add(c)
 
     def add_all(self):
