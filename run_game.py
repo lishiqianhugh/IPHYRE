@@ -32,6 +32,9 @@ class IPHYRE():
         self.num_ball = len(self.balls)
         self.eli = deepcopy(game_paras[self.game]['eli'])
         self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
+        self.joint = None
+        if 'joint' in game_paras[self.game].keys():
+            self.joint = game_paras[self.game]['joint']
 
         self.b_mass, self.b_elasticity, self.b_friction = 1.0, 0.1, 0.5
         self.l_friction, self.l_elasticity = 0.5, 0.1
@@ -53,12 +56,13 @@ class IPHYRE():
         for body in self.space.bodies:
             shape = list(body.shapes)[0]
             self.space.remove(shape, shape.body)
+        for joint in self.space.constraints:
+            self.space.remove(joint)
         self.screen.fill((255, 255, 255))
         self.add_all()
         self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
         self.eli = deepcopy(game_paras[self.game]['eli'])
         self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
-       
 
     def add_ball(self, b_pos, radius, mass, elasticity, friction):
         moment = pymunk.moment_for_circle(mass, 0, radius)
@@ -69,7 +73,7 @@ class IPHYRE():
         shape.friction = friction
         shape.color = (255, 0, 0, 255)
         self.space.add(body, shape)
-        return shape
+        return body
 
     def add_static_line(self, l_pos, eli, friction, elasticity):
         static_body = pymunk.Body(body_type=pymunk.Body.STATIC)
@@ -84,7 +88,7 @@ class IPHYRE():
         else:
             static_shape.color = (0, 0, 0, 255)
         self.space.add(static_body, static_shape)
-        return static_shape
+        return static_body
 
     def add_dynamic_line(self, l_pos, friction, elasticity):
         x1, y1, x2, y2 = l_pos[0][0], l_pos[0][1], l_pos[1][0], l_pos[1][1]
@@ -97,6 +101,13 @@ class IPHYRE():
         shape.friction = friction
         shape.elasticity = elasticity
         self.space.add(body, shape)
+        return body
+
+    def add_joint(self):
+        for i, body in enumerate(self.space.bodies):
+            if self.joint[i] != -1:
+                c: pymunk.Constraint = pymunk.PinJoint(body, self.space.bodies[self.joint[i]])
+                self.space.add(c)
 
     def add_joint(self, b1, b2, a1=(0, 0), a2=(0, 0)):
         joint = pymunk.constraint.PinJoint(b1, b2, a1, a2)
@@ -111,6 +122,8 @@ class IPHYRE():
                 self.add_static_line(l_para, eli, self.l_friction, self.l_elasticity)
         for b_para in self.balls:
             self.add_ball(b_para[:2], b_para[2], self.b_mass, self.b_elasticity, self.b_friction)
+        if self.joint:
+            self.add_joint()
 
     def eliminate(self, p):
         for i, body in enumerate(self.space.bodies[:-self.num_ball]):
@@ -138,14 +151,8 @@ class IPHYRE():
         else:
             return False
 
-    def add_text(self, text="Success!", loc=(230, 30), color="green"):
-        font = pygame.font.Font(None, 50)
-        text = font.render(text, True, pygame.Color(color))
-        self.screen.blit(text, loc)
-        self.add_restart()
-
-    def add_restart(self, text="Press space to Restart", loc=(200, 200), color="blue"):
-        font = pygame.font.Font(None, 30)
+    def add_text(self, text="Success!", loc=(230, 30), color="green", font=50):
+        font = pygame.font.Font(None, font)
         text = font.render(text, True, pygame.Color(color))
         self.screen.blit(text, loc)
 
@@ -164,19 +171,24 @@ class IPHYRE():
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     p = event.pos
                     self.eliminate(p)
+                elif event.type == KEYDOWN and event.key == K_c:
+                    for joint in self.space.constraints:
+                        self.space.remove(joint)
                 elif event.type == KEYDOWN and event.key == K_SPACE and finish_game:
                     finish_game = False
                     time_count = 0
                     self.reset() 
             time_count += self.timestep
-            if(time_count >= self.max_time - self.timestep):
+            if time_count >= self.max_time - self.timestep:
                 self.add_text(text="Failed", loc=(245, 30), color="red")
+                self.add_text(text="Press space to Restart", loc=(200, 70), color="blue", font=30)
                 finish_game = True
                 time_count = self.max_time
                 exceed_time = True
               
             if not exceed_time and self.examine_success():
-                self.add_text()
+                self.add_text(text="Success!", loc=(230, 30), color="green")
+                self.add_text(text="Press space to Restart", loc=(200, 70), color="blue", font=30)
                 finish_game = True
                 time_count = 0             
             self.space.step(self.timestep)
@@ -184,10 +196,6 @@ class IPHYRE():
             
             pygame.display.flip()
             self.clock.tick(self.FPS)
-            
-
-    
-        
 
     def simulate(self, action=None):
         self.add_all()
