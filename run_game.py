@@ -4,16 +4,15 @@ import pygame
 from pygame.locals import *
 import pymunk
 import pymunk.pygame_util
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pymunk.matplotlib_util
 import numpy as np
-from game_paras import game_paras
-from solutions import sol
 import pdb
 import os
-import itertools
 from copy import deepcopy
+
+from game_paras import game_paras
+from solutions import sol
 
 
 class IPHYRE():
@@ -22,7 +21,7 @@ class IPHYRE():
         self.HEIGHT, self.WIDTH = 600, 600
         self.FPS = 60
         self.timestep = 1 / self.FPS
-        self.max_time = 10
+        self.max_time = 20
 
         self.blocks = game_paras[self.game]['block']
         self.balls = game_paras[self.game]['ball']
@@ -32,9 +31,17 @@ class IPHYRE():
         self.num_ball = len(self.balls)
         self.eli = deepcopy(game_paras[self.game]['eli'])
         self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
-        self.joint = None
+        self.num_obj = len(self.eli)
+        # self.joint = np.zeros((self.num_obj, self.num_obj))
+        # if 'joint' in game_paras[self.game].keys():
+        #     for (b1, b2) in game_paras[self.game]['joint']:
+        #         self.joint[b1][b2], self.joint[b1][b2] = 1., 1.
+        self.spring = None
         if 'joint' in game_paras[self.game].keys():
             self.joint = game_paras[self.game]['joint']
+        self.joint = None
+        if 'spring' in game_paras[self.game].keys():
+            self.spring = game_paras[self.game]['spring']
 
         self.b_mass, self.b_elasticity, self.b_friction = 1.0, 0.1, 0.5
         self.l_friction, self.l_elasticity = 0.5, 0.1
@@ -58,6 +65,7 @@ class IPHYRE():
             self.space.remove(shape, shape.body)
         for joint in self.space.constraints:
             self.space.remove(joint)
+            # TODO
         self.screen.fill((255, 255, 255))
         self.add_all()
         self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
@@ -104,10 +112,14 @@ class IPHYRE():
         return body
 
     def add_joint(self):
-        for i, body in enumerate(self.space.bodies):
-            if self.joint[i] != -1:
-                c: pymunk.Constraint = pymunk.PinJoint(body, self.space.bodies[self.joint[i]])
-                self.space.add(c)
+        for (b1, b2) in game_paras[self.game]['joint']:
+            c: pymunk.Constraint = pymunk.PinJoint(self.space.bodies[b1], self.space.bodies[b2])
+            self.space.add(c)
+
+    def add_spring(self):
+        for (b1, b2) in game_paras[self.game]['spring']:
+            c = pymunk.DampedSpring(self.space.bodies[b1], self.space.bodies[b2], (30, 0), (-30, 0), 20, 2, 0.3)
+            self.space.add(c)
 
     def add_all(self):
         assert len(self.blocks) == len(game_paras[self.game]['eli'][:-self.num_ball])
@@ -120,6 +132,8 @@ class IPHYRE():
             self.add_ball(b_para[:2], b_para[2], self.b_mass, self.b_elasticity, self.b_friction)
         if self.joint:
             self.add_joint()
+        if self.spring:
+            self.add_spring()
 
     def eliminate(self, p):
         for i, body in enumerate(self.space.bodies[:-self.num_ball]):
@@ -131,6 +145,8 @@ class IPHYRE():
             max_1 = y + 10
             if self.eli[i] == 1 and min_0 < p[0] < max_0 and min_1 < p[1] < max_1:
                 self.space.remove(shape, shape.body)
+                for constraint in list(shape.body.constraints):
+                    self.space.remove(constraint)
                 self.eli.pop(i)
                 self.dynamic.pop(i)
                 self.shape.pop(i)
@@ -167,9 +183,6 @@ class IPHYRE():
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     p = event.pos
                     self.eliminate(p)
-                elif event.type == KEYDOWN and event.key == K_c:
-                    for joint in self.space.constraints:
-                        self.space.remove(joint)
                 elif event.type == KEYDOWN and event.key == K_SPACE and finish_game:
                     finish_game = False
                     time_count = 0
