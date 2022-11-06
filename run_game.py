@@ -41,7 +41,7 @@ class IPHYRE():
         self.HEIGHT, self.WIDTH = 600, 600
         self.FPS = 60
         self.timestep = 1 / self.FPS
-        self.max_time = 20
+        self.max_time = 15
 
         self.blocks = game_paras[self.game]['block']
         self.balls = game_paras[self.game]['ball']
@@ -219,6 +219,8 @@ class IPHYRE():
                     button_pressed = self.button_process()
                     if(not button_pressed):
                         self.eliminate(p)
+                    else:
+                        time_count = 0
                 elif event.type == KEYDOWN and event.key == K_SPACE and finish_game:
                     finish_game = False
                     time_count = 0
