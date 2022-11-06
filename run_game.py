@@ -132,7 +132,7 @@ class IPHYRE():
 
     def add_spring(self):
         for (b1, b2) in game_paras[self.game]['spring']:
-            c = pymunk.DampedSpring(self.space.bodies[b1], self.space.bodies[b2], (30, 0), (-30, 0), 20, 1, 0.3)
+            c = pymunk.DampedSpring(self.space.bodies[b1], self.space.bodies[b2], (0, 0), (0, 0), 20, 1, 0.3)
             self.space.add(c)
 
     def add_all(self):
@@ -217,19 +217,22 @@ class IPHYRE():
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     p = event.pos
                     button_pressed = self.button_process()
-                    if not button_pressed:
-                        self.eliminate(p)
-                    else:
+                    if button_pressed:
                         time_count = 0
+                        finish_game = False
+                    elif not finish_game:
+                        self.eliminate(p)
             time_count += self.timestep
             if time_count >= self.max_time - self.timestep:
                 self.add_text(text="Failed", loc=(245, 30), color="red")
                 time_count = self.max_time
                 exceed_time = True
+                finish_game = True
               
             if not exceed_time and self.examine_success():
                 self.add_text(text="Success!", loc=(230, 30), color="green")
-                time_count = 0             
+                time_count = 0
+                finish_game = True             
             self.space.step(self.timestep)
             self.space.debug_draw(self.draw_options)
             
