@@ -13,9 +13,29 @@ from copy import deepcopy
 
 from game_paras import game_paras
 from solutions import sol
+from utils import *
 
 
 class IPHYRE():
+
+    class Button():
+        def __init__(self, x, y, width, height, buttonText='Button'):
+            self.x = x
+            self.y = y
+            self.width = width
+            self.height = height
+            self.alreadyPressed = False
+            self.font = pygame.font.SysFont('Arial', 20)
+            self.fillColors = {
+                'normal': '#ffffff',
+                'hover': '#666666',
+                'pressed': '#333333',
+            }
+            self.buttonSurface = pygame.Surface((self.width, self.height))
+            self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+            self.buttonSurf = self.font.render(buttonText, True, "blue")
+
     def __init__(self):
         self.game, self.mode = sys.argv[1], sys.argv[2]
         self.HEIGHT, self.WIDTH = 600, 600
@@ -27,15 +47,10 @@ class IPHYRE():
         self.balls = game_paras[self.game]['ball']
         self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
         self.property = []
-
         self.num_ball = len(self.balls)
         self.eli = deepcopy(game_paras[self.game]['eli'])
         self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
         self.num_obj = len(self.eli)
-        # self.joint = np.zeros((self.num_obj, self.num_obj))
-        # if 'joint' in game_paras[self.game].keys():
-        #     for (b1, b2) in game_paras[self.game]['joint']:
-        #         self.joint[b1][b2], self.joint[b1][b2] = 1., 1.
 
         self.joint = None
         if 'joint' in game_paras[self.game].keys():
@@ -47,26 +62,24 @@ class IPHYRE():
         self.b_mass, self.b_elasticity, self.b_friction = 1.0, 0.1, 0.5
         self.l_friction, self.l_elasticity = 0.5, 0.1
         self.G = (0., 100.0)
-
         self.space = pymunk.Space()
         self.space.gravity = self.G
-
         self.solutions = sol
 
         if self.mode != 'collect':
             pygame.init()
             self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
             pygame.display.set_caption(f"Interactive Physical Reasoning: {self.game}")
+            self.button = self.Button(500, 500, 80, 20, 'Restart')
             self.clock = pygame.time.Clock()
             self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
-
+    
     def reset(self):
         for body in self.space.bodies:
             shape = list(body.shapes)[0]
             self.space.remove(shape, shape.body)
         for joint in self.space.constraints:
             self.space.remove(joint)
-            # TODO
         self.screen.fill((255, 255, 255))
         self.add_all()
         self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
@@ -153,6 +166,25 @@ class IPHYRE():
                 self.shape.pop(i)
                 return i
         return -1
+    
+    def button_process(self):
+        mousePos = pygame.mouse.get_pos()
+        self.button.buttonSurface.fill(self.button.fillColors['normal'])
+        if self.button.buttonRect.collidepoint(mousePos):
+            self.button.buttonSurface.fill(self.button.fillColors['hover'])
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.button.buttonSurface.fill(self.button.fillColors['pressed'])
+                if not self.button.alreadyPressed:
+                    self.reset()
+                    self.button.alreadyPressed = True
+            else:
+                self.button.alreadyPressed = False
+        self.button.buttonSurface.blit(self.button.buttonSurf, [
+        self.button.buttonRect.width/2 - self.button.buttonSurf.get_rect().width/2,
+        self.button.buttonRect.height/2 - self.button.buttonSurf.get_rect().height/2
+    ])
+        self.screen.blit(self.button.buttonSurface, self.button.buttonRect)
+        return self.button.alreadyPressed
 
     def examine_success(self):
         success = 0
@@ -176,6 +208,7 @@ class IPHYRE():
         time_count = 0
         while time_count < self.max_time + self.timestep:
             self.screen.fill((255, 255, 255))
+            self.button_process()
             for event in pygame.event.get():
                 if event.type == QUIT:
                     sys.exit(0)
@@ -183,7 +216,9 @@ class IPHYRE():
                     sys.exit(0)
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     p = event.pos
-                    self.eliminate(p)
+                    button_pressed = self.button_process()
+                    if(not button_pressed):
+                        self.eliminate(p)
                 elif event.type == KEYDOWN and event.key == K_SPACE and finish_game:
                     finish_game = False
                     time_count = 0
