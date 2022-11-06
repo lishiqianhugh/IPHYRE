@@ -36,10 +36,11 @@ class IPHYRE():
         # if 'joint' in game_paras[self.game].keys():
         #     for (b1, b2) in game_paras[self.game]['joint']:
         #         self.joint[b1][b2], self.joint[b1][b2] = 1., 1.
-        self.spring = None
+
+        self.joint = None
         if 'joint' in game_paras[self.game].keys():
             self.joint = game_paras[self.game]['joint']
-        self.joint = None
+        self.spring = None
         if 'spring' in game_paras[self.game].keys():
             self.spring = game_paras[self.game]['spring']
 
