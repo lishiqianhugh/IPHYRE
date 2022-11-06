@@ -9,7 +9,7 @@ sol = {
             'angle': [],
             'impulse': [],
             'pendulum': [],
-            'noisy_impulse': [],
+            'activated_pendulum': [],
             'noisy_support': [],
             'noisy_hinder': [],
             'noisy_direction': [],
@@ -17,6 +17,8 @@ sol = {
             'noisy_fill': [],
             'noisy_lever': [],
             'noisy_angle': [],
+            'noisy_impulse': [],
+            'noisy_pendulum': [],
             'support_hinder': [],
             'support_direction': [],
             'support_hole': [],
@@ -28,5 +30,4 @@ sol = {
             'impulse_joint': [],
             'more_ball_support_spring': [],
             'impulse_spring': [],
-            'activated_pendulum': [],
         }
