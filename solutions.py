@@ -8,6 +8,7 @@ sol = {
             'lever': [],
             'angle': [],
             'impulse': [],
+            'pendulum': [],
             'noisy_impulse': [],
             'noisy_support': [],
             'noisy_hinder': [],
@@ -23,4 +24,6 @@ sol = {
             'more_step_hole': [],
             'more_ball_support': [],
             'more_ball_hole': [],
+            'more_ball_support_joint': [],
+            'impulse_joint': [],
         }
