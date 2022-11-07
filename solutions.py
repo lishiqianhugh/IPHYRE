@@ -6,6 +6,7 @@ sol = {
     'multi_balls': [[(500., 400.), 1]],
     'stack': [],
     'fill': [],
+    'redirect': [],
     'lever': [],
     'seesaw': [],
     'angle': [],
