@@ -191,6 +191,7 @@ class IPHYRE():
         for ball in self.space.bodies[-self.num_ball:]:
             if ball.position[1] > self.HEIGHT:
                 success += 1
+        # print(success, self.num_ball)
         if success == self.num_ball:
             return True
         else:
