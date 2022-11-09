@@ -22,11 +22,12 @@ sol = {
     'noisy_direction': [],
     'noisy_hole': [],
     'noisy_fill': [],
-    'noisy_lever': [],
+    # 'noisy_lever': [],
     'noisy_seesaw': [],
     'noisy_angle': [],
     'noisy_impulse': [],
     'noisy_pendulum': [],
+    'noisy_spring': [],
     'support_hinder': [],
     'support_direction': [],
     'support_hole': [],
@@ -39,3 +40,8 @@ sol = {
     'spring': [],
     'hinder_fill': [],
 }
+
+if __name__ == '__main__':
+    print(f'There are {len(sol)} games.')
+    for key in sol.keys():
+        print(key, end=' ')
