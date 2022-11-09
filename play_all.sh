@@ -1,4 +1,4 @@
-for game in support hinder direction hole multi_balls stack fill redirect lever seesaw angle impulse pendulum spring_pendulum activated_pendulum noisy_support noisy_hinder noisy_direction noisy_hole noisy_fill noisy_lever noisy_seesaw noisy_angle noisy_impulse support_hinder support_direction support_hole more_step_support more_step_hole more_ball_support more_ball_hole more_ball_support_joint impulse_joint more_ball_support_spring impulse_spring
+for game in support hinder direction hole fill seesaw angle impulse pendulum spring support_hinder support_direction support_hole impulse_spring impulse_pendulum activated_pendulum hinder_fill spring_flick more_step_support more_step_hole noisy_support noisy_hinder noisy_direction noisy_hole noisy_fill noisy_lever noisy_seesaw noisy_angle noisy_impulse multi_balls stack multi_ball_support redirect multi_ball_hole lever multi_ball_support_joint multi_ball_support_spring multi_balls_spring_flick
 do
   python ./run_game.py $game play
 done
