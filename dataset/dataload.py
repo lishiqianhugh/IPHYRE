@@ -7,9 +7,9 @@ from torch.utils.data import Dataset
 import numpy as np
 import cv2
 from tqdm import tqdm
-import phyre
 
-from configs.phyre_cfg import _C as cfg
+
+
 
 
 class PHYREO(Dataset):
