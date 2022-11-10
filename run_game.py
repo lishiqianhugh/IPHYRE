@@ -243,9 +243,10 @@ class IPHYRE():
                         start = True
                     if button_pressed:
                         time_count = 0
+                        exceed_time = False
                         start = False
                         finish_game = False
-                    elif not finish_game and start:
+                    if not finish_game and start:
                         self.eliminate(p)
             if(start):  
                 time_count += self.timestep
@@ -331,14 +332,11 @@ class IPHYRE():
         dic['eli'] = np.array(self.eli)
         dic['dynamic'] = np.array(self.dynamic)
         np.save(game_path +  'property.npy', dic)
-        num_dirs = 0
-        for root, dirs, files in os.walk(game_path):
-            for name in dirs:
-                num_dirs += 1
-        data_path = game_path + f'{num_dirs}/'
-        if not os.path.exists(data_path):
-            os.makedirs(data_path)
-
+        action_0 = np.load(game_path + 'succeed/' + '0/' + 'actions.npy')
+        action_1 = np.load(game_path + 'failed/' + '0/' + 'actions.npy')
+        print(f'actions0:{action_0}')
+        print(f'actions1:{action_1}')
+        pdb.set_trace()
         finish_game = False
         exceed_time = False
         time_count = 0
@@ -365,35 +363,46 @@ class IPHYRE():
                     if button_pressed:
                         time_count = 0
                         start = False
+                        exceed_time = False
                         finish_game = False
                         actions = []
-                        for root, dirs, files in os.walk(game_path):
-                            for name in dirs:
-                                num_dirs += 1
-                        data_path = game_path + f'{num_dirs}/'
-                        if not os.path.exists(data_path):
-                            os.makedirs(data_path)
-                    elif not finish_game and start:
-                        self.eliminate(p)
+                        eli_mask = np.arange(len(self.space.bodies))
+                    if not finish_game and start:
                         index = self.eliminate(p)
                         if index != -1:
                             eli_mask = np.delete(eli_mask, index)
-                            t = int(time_count/interval) * interval
-                            actions.append(np.array(list(p)+[t]))
+                            actions.append(np.array(list(p)+[time_count]))
+
             if(start):  
                 time_count += self.timestep
                 if time_count >= self.max_time - self.timestep:
                     self.add_text(text="Failed", loc=(245, 30), color="red")
                     time_count = self.max_time
                     exceed_time = True
-                    finish_game = True
-                    np.save(data_path + 'actions.npy', np.array(actions))
+                    if not finish_game:
+                        finish_game = True
+                        num_dirs = 0
+                        for root, dirs, files in os.walk(game_path + 'failed/'):
+                            for name in dirs:
+                                num_dirs += 1
+                        data_path = game_path + 'failed/' + f'{num_dirs}/'
+                        if not os.path.exists(data_path):
+                            os.makedirs(data_path)
+                        np.save(data_path + 'actions.npy', np.array(actions))
                 
                 if not exceed_time and self.examine_success():
                     self.add_text(text="Success!", loc=(230, 30), color="green")
                     time_count = 0
-                    finish_game = True 
-                    np.save(data_path + 'actions.npy', np.array(actions))            
+                    if not finish_game:
+                        finish_game = True 
+                        num_dirs = 0
+                        for root, dirs, files in os.walk(game_path + 'succeed/'):
+                            for name in dirs:
+                                num_dirs += 1
+                        data_path = game_path + 'succeed/' + f'{num_dirs}/'
+                        if not os.path.exists(data_path):
+                            os.makedirs(data_path)
+                        np.save(data_path + 'actions.npy', np.array(actions))            
                 self.space.step(self.timestep)
                 self.space.debug_draw(self.draw_options)
                 
