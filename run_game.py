@@ -334,9 +334,9 @@ class IPHYRE():
         np.save(game_path +  'property.npy', dic)
         action_0 = np.load(game_path + 'succeed/' + '0/' + 'actions.npy')
         action_1 = np.load(game_path + 'failed/' + '0/' + 'actions.npy')
-        print(f'actions0:{action_0}')
-        print(f'actions1:{action_1}')
-        pdb.set_trace()
+        # print(f'actions0:{action_0}')
+        # print(f'actions1:{action_1}')
+        # pdb.set_trace()
         finish_game = False
         exceed_time = False
         time_count = 0
