@@ -41,7 +41,7 @@ sol = {
     'multi_ball_pendulum': [],
     'multi_ball_spring': [],
     'impulse_pendulum': [],
-    'multi_ball_support_spring': [],
+    # 'multi_ball_support_spring': [],
     'spring': [],
     'hinder_fill': [],
 }
