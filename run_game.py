@@ -320,7 +320,7 @@ class IPHYRE():
             r = shape.radius
             return [x, y, 0, 0, r, 0, 0]
 
-    def collect_while_play(self, save_path='data/', fps=2):
+    def collect_while_play(self, save_path='data_player/', fps=2):
         self.add_all()
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
@@ -331,75 +331,79 @@ class IPHYRE():
         dic['eli'] = np.array(self.eli)
         dic['dynamic'] = np.array(self.dynamic)
         np.save(game_path +  'property.npy', dic)
-        
-        for i, act_list in enumerate(act_lists):  # the step number of each action can be variant
-            eli_mask = np.arange(len(self.space.bodies))
-            data_path = game_path + f'{i}/'
-            if not os.path.exists(data_path):
-                img_path = data_path + 'images/'
-                os.makedirs(img_path)
-                act_pos = np.array([list(a[0]) for a in act_list])
-                act_ts = np.array([a[1] for a in act_list])
-                np.save(data_path + 'actions.npy', np.concatenate((act_pos, act_ts.reshape(-1, 1)), axis=-1))
-            else:
-                continue  # already get the data stored
-            step, time_count = 0, 0.
-            total_step = len(act_list)
-            interval = self.FPS / fps
-            interval_cal = 0
-            vectors = [[]] * len(self.space.bodies)
+        num_dirs = 0
+        for root, dirs, files in os.walk(game_path):
+            for name in dirs:
+                num_dirs += 1
+        data_path = game_path + f'{num_dirs}/'
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
 
-            while time_count < self.max_time:
-                if step < total_step:
-                    p, t = act_list[step][0], act_list[step][1]
-                    if time_count >= t:
-                        # p = space.bodies[a].position
+        finish_game = False
+        exceed_time = False
+        time_count = 0
+        start = False
+
+        eli_mask = np.arange(len(self.space.bodies))
+        interval = 1 / fps
+        actions = []
+        while time_count < self.max_time + self.timestep:
+            self.screen.fill((255, 255, 255))
+            self.button_process()
+            self.start_process()
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    sys.exit(0)
+                elif event.type == KEYDOWN and event.key == K_ESCAPE:
+                    sys.exit(0)
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    p = event.pos
+                    button_pressed = self.button_process()
+                    start_pressed = self.start_process()
+                    if start_pressed:
+                        start = True
+                    if button_pressed:
+                        time_count = 0
+                        start = False
+                        finish_game = False
+                        actions = []
+                        for root, dirs, files in os.walk(game_path):
+                            for name in dirs:
+                                num_dirs += 1
+                        data_path = game_path + f'{num_dirs}/'
+                        if not os.path.exists(data_path):
+                            os.makedirs(data_path)
+                    elif not finish_game and start:
+                        self.eliminate(p)
                         index = self.eliminate(p)
                         if index != -1:
-                            print(f'Step {step}: Click {p} at time {time_count}.')
-                            step += 1
                             eli_mask = np.delete(eli_mask, index)
-                            for body in self.space.bodies:
-                                print(body.position)
-
-                self.space.step(self.timestep)
-                if interval_cal == interval or interval_cal == 0:
-                    interval_cal = 0
-                    print(f'{round(time_count, 1)}: eli_mask:{eli_mask}')
-                    for i, body in enumerate(self.space.bodies):
-                        index = eli_mask[i]
-                        property = self.get_property(body, self.shape[i])
-                        if(self.joint):
-                            if index in self.joint:
-                                property[-2] = 1
-                        if(self.spring):
-                            if index in self.spring:
-                                property[-1] = 1
-                        vectors[index].append(property)  
-                    for j in range(len(vectors)):
-                        if j not in eli_mask:
-                            vectors[j].append([0] * len(vectors[0][0]))
-                    print(f'number of bodies:{len(self.space.bodies)}')
-                    # self.draw_options = pymunk.SpaceDebugDrawOptions()
-                    fig = plt.figure(figsize=(10, 10))
-                    ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
-                    ax.set_aspect("equal")
-                    ax.set_axis_off()
-                    ax.invert_yaxis()
-                    o = pymunk.matplotlib_util.DrawOptions(ax)
-                    self.space.debug_draw(o)
-                    fig.savefig(img_path + f'{round(time_count, 1)}.jpg')
-                interval_cal += 1
+                            t = int(time_count/interval) * interval
+                            actions.append(np.array(list(p)+[t]))
+            if(start):  
                 time_count += self.timestep
-                if self.examine_success():
-                    print(f'###### Success at time {time_count} ######')
-                    for body in self.space.bodies:
-                        print(body.position)
-                    np.save(data_path + 'vectors.npy', np.array(vectors))
-                    sys.exit()
+                if time_count >= self.max_time - self.timestep:
+                    self.add_text(text="Failed", loc=(245, 30), color="red")
+                    time_count = self.max_time
+                    exceed_time = True
+                    finish_game = True
+                    np.save(data_path + 'actions.npy', np.array(actions))
+                
+                if not exceed_time and self.examine_success():
+                    self.add_text(text="Success!", loc=(230, 30), color="green")
+                    time_count = 0
+                    finish_game = True 
+                    np.save(data_path + 'actions.npy', np.array(actions))            
+                self.space.step(self.timestep)
+                self.space.debug_draw(self.draw_options)
+                
+                pygame.display.flip()
+                self.clock.tick(self.FPS)
+            else:
+                self.space.debug_draw(self.draw_options)
+                pygame.display.flip()
 
-            np.save(data_path + 'vectors.npy', np.array(vectors))
-            sys.exit()
+            
 
     def collect_data(self, save_path='data/', act_lists=None, fps=2):  # maximum fps=60
         # actions is a list of actions
@@ -493,6 +497,8 @@ class IPHYRE():
             self.simulate(act_list)
         elif self.mode == 'collect':
             self.collect_data(act_lists=act_lists)
+        elif self.mode == 'collect_while_play':
+            self.collect_while_play()
         else:
             raise ValueError(f'No such mode {self.mode}. Mode list: (play, simulate, collect)')
 
