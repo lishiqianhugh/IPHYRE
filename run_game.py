@@ -36,8 +36,8 @@ class IPHYRE():
 
             self.buttonSurf = self.font.render(buttonText, True, color)
 
-    def __init__(self):
-        self.game, self.mode = sys.argv[1], sys.argv[2]
+    def __init__(self, game='support', mode='play'):
+        self.game, self.mode = game, mode
         self.HEIGHT, self.WIDTH = 600, 600
         self.FPS = 60
         self.timestep = 1 / self.FPS
@@ -407,8 +407,6 @@ class IPHYRE():
                 self.space.debug_draw(self.draw_options)
                 pygame.display.flip()
 
-            
-
     def collect_data(self, save_path='data/', act_lists=None, fps=2):  # maximum fps=60
         # actions is a list of actions
         self.add_all()
@@ -508,6 +506,7 @@ class IPHYRE():
 
 
 if __name__ == '__main__':
-    demo = IPHYRE()
+    g, m = sys.argv[1], sys.argv[2]
+    demo = IPHYRE(g, m)
     demo.run()
 

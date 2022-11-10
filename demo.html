@@ -1,0 +1,19 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css"/>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+
+<body>
+<h1>Interactive Physical Reasoning</h1>
+<div id="plot"></div>
+<py-config type="json">
+    {
+    "packages": ["numpy", "matplotlib"]
+    }
+</py-config>
+<py-script output="plot" src="./game_paras.py">
+
+</py-script>
+</body>
+</html>
