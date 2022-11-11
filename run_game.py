@@ -377,10 +377,10 @@ class IPHYRE():
                     if not finish_game:
                         finish_game = True
                         num_dirs = 0
-                        for root, dirs, files in os.walk(game_path + 'failed/'):
+                        for root, dirs, files in os.walk(game_path + 'fail/'):
                             for name in dirs:
                                 num_dirs += 1
-                        data_path = game_path + 'failed/' + f'{num_dirs}/'
+                        data_path = game_path + 'fail/' + f'{num_dirs}/'
                         if not os.path.exists(data_path):
                             os.makedirs(data_path)
                         np.save(data_path + 'actions.npy', np.array(actions))
@@ -502,7 +502,7 @@ class IPHYRE():
         elif self.mode == 'collect_while_play':
             self.collect_while_play()
         else:
-            raise ValueError(f'No such mode {self.mode}. Mode list: (play, simulate, collect)')
+            raise ValueError(f'No such mode {self.mode}. Mode list: (play, simulate, collect, collect_while_play)')
 
 
 if __name__ == '__main__':

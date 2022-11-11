@@ -61,6 +61,8 @@ python run_game.py hinder play
 
 Run `play_all.sh` to play all games.
 
+Run `collect_while_play_all.sh` to collect data while playing all games.
+
 ## API
 ### collect_data
 #### Input: 
