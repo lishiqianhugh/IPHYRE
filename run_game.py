@@ -17,9 +17,8 @@ from utils import *
 
 
 class IPHYRE():
-
     class Button():
-        def __init__(self, x, y, width, height,buttonText='Button',color = 'blue'):
+        def __init__(self, x, y, width, height, buttonText='Button', color='blue'):
             self.x = x
             self.y = y
             self.width = width
@@ -70,10 +69,10 @@ class IPHYRE():
             self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
             pygame.display.set_caption(f"Interactive Physical Reasoning: {self.game}")
             self.button = self.Button(500, 500, 80, 20, 'Reset')
-            self.start_button = self.Button(500, 450, 80, 20, 'Start',color='orange')
+            self.start_button = self.Button(500, 450, 80, 20, 'Start', color='orange')
             self.clock = pygame.time.Clock()
             self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
-    
+
     def reset(self):
         for body in self.space.bodies:
             shape = list(body.shapes)[0]
@@ -137,7 +136,8 @@ class IPHYRE():
 
     def add_all(self):
         assert len(self.blocks) == len(game_paras[self.game]['eli'][:-self.num_ball])
-        for l_para, eli, dynamics in zip(self.blocks, game_paras[self.game]['eli'][:-self.num_ball], game_paras[self.game]['dynamic'][:-self.num_ball]):
+        for l_para, eli, dynamics in zip(self.blocks, game_paras[self.game]['eli'][:-self.num_ball],
+                                         game_paras[self.game]['dynamic'][:-self.num_ball]):
             if dynamics:
                 self.add_dynamic_line(l_para, self.l_friction, self.l_elasticity)
             else:
@@ -166,7 +166,7 @@ class IPHYRE():
                 self.shape.pop(i)
                 return i
         return -1
-    
+
     def button_process(self):
         mousePos = pygame.mouse.get_pos()
         self.button.buttonSurface.fill(self.button.fillColors['normal'])
@@ -180,12 +180,12 @@ class IPHYRE():
             else:
                 self.button.alreadyPressed = False
         self.button.buttonSurface.blit(self.button.buttonSurf, [
-        self.button.buttonRect.width/2 - self.button.buttonSurf.get_rect().width/2,
-        self.button.buttonRect.height/2 - self.button.buttonSurf.get_rect().height/2
-    ])
+            self.button.buttonRect.width / 2 - self.button.buttonSurf.get_rect().width / 2,
+            self.button.buttonRect.height / 2 - self.button.buttonSurf.get_rect().height / 2
+        ])
         self.screen.blit(self.button.buttonSurface, self.button.buttonRect)
         return self.button.alreadyPressed
-    
+
     def start_process(self):
         mousePos = pygame.mouse.get_pos()
         self.start_button.buttonSurface.fill(self.start_button.fillColors['normal'])
@@ -198,9 +198,9 @@ class IPHYRE():
             else:
                 self.start_button.alreadyPressed = False
         self.start_button.buttonSurface.blit(self.start_button.buttonSurf, [
-        self.start_button.buttonRect.width/2 - self.start_button.buttonSurf.get_rect().width/2,
-        self.start_button.buttonRect.height/2 - self.start_button.buttonSurf.get_rect().height/2
-    ])
+            self.start_button.buttonRect.width / 2 - self.start_button.buttonSurf.get_rect().width / 2,
+            self.start_button.buttonRect.height / 2 - self.start_button.buttonSurf.get_rect().height / 2
+        ])
         self.screen.blit(self.start_button.buttonSurface, self.start_button.buttonRect)
         return self.start_button.alreadyPressed
 
@@ -209,7 +209,6 @@ class IPHYRE():
         for ball in self.space.bodies[-self.num_ball:]:
             if ball.position[1] > self.HEIGHT:
                 success += 1
-        # print(success, self.num_ball)
         if success == self.num_ball:
             return True
         else:
@@ -222,10 +221,8 @@ class IPHYRE():
 
     def play(self):
         self.add_all()
-        finish_game = False
-        exceed_time = False
+        finish_game, exceed_time, start = False, False, False
         time_count = 0
-        start = False
         while time_count < self.max_time + self.timestep:
             self.screen.fill((255, 255, 255))
             self.button_process()
@@ -248,21 +245,21 @@ class IPHYRE():
                         finish_game = False
                     if not finish_game and start:
                         self.eliminate(p)
-            if(start):  
+            if start:
                 time_count += self.timestep
                 if time_count >= self.max_time - self.timestep:
                     self.add_text(text="Failed", loc=(245, 30), color="red")
                     time_count = self.max_time
                     exceed_time = True
                     finish_game = True
-                
+
                 if not exceed_time and self.examine_success():
                     self.add_text(text="Success!", loc=(230, 30), color="green")
                     time_count = 0
-                    finish_game = True             
+                    finish_game = True
                 self.space.step(self.timestep)
                 self.space.debug_draw(self.draw_options)
-                
+
                 pygame.display.flip()
                 self.clock.tick(self.FPS)
             else:
@@ -278,7 +275,6 @@ class IPHYRE():
             if step < total_step:
                 p, t = action[step][0], action[step][1]
                 if time_count >= t:
-                    # p = space.bodies[a].position
                     if self.eliminate(p) != -1:
                         print(f'Step {step}: Click {p} at time {time_count}.')
                         step += 1
@@ -316,7 +312,7 @@ class IPHYRE():
             x2 = x + b_x
             y1 = y + a_y
             y2 = y + b_y
-            return [x1, y1, x2, y2, r, 0, 0]  
+            return [x1, y1, x2, y2, r, 0, 0]
         else:
             r = shape.radius
             return [x, y, 0, 0, r, 0, 0]
@@ -326,16 +322,13 @@ class IPHYRE():
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
             os.makedirs(game_path)
-        dic = {}
-        dic['balls'] = np.array(self.balls)
-        dic['blocks'] = np.array(self.blocks)
-        dic['eli'] = np.array(self.eli)
-        dic['dynamic'] = np.array(self.dynamic)
-        np.save(game_path +  'property.npy', dic)
-        finish_game = False
-        exceed_time = False
+        dic = {'balls': np.array(self.balls),
+               'blocks': np.array(self.blocks),
+               'eli': np.array(self.eli),
+               'dynamic': np.array(self.dynamic)}
+        np.save(game_path + 'property.npy', dic)
+        finish_game, exceed_time, start = False, False, False
         time_count = 0
-        start = False
 
         eli_mask = np.arange(len(self.space.bodies))
         interval = 1 / fps
@@ -366,9 +359,9 @@ class IPHYRE():
                         index = self.eliminate(p)
                         if index != -1:
                             eli_mask = np.delete(eli_mask, index)
-                            actions.append(np.array(list(p)+[time_count]))
+                            actions.append(np.array(list(p) + [time_count]))
 
-            if(start):  
+            if start:
                 time_count += self.timestep
                 if time_count >= self.max_time - self.timestep:
                     self.add_text(text="Failed", loc=(245, 30), color="red")
@@ -377,30 +370,26 @@ class IPHYRE():
                     if not finish_game:
                         finish_game = True
                         num_dirs = 0
-                        for root, dirs, files in os.walk(game_path + 'fail/'):
-                            for name in dirs:
-                                num_dirs += 1
-                        data_path = game_path + 'fail/' + f'{num_dirs}/'
-                        if not os.path.exists(data_path):
-                            os.makedirs(data_path)
-                        np.save(data_path + 'actions.npy', np.array(actions))
-                
+                        data_path = game_path + 'fail/'
+                        if os.path.exists(data_path):
+                            num_dirs = len(os.listdir(data_path))
+                        os.makedirs(data_path + f'{num_dirs}/')
+                        np.save(data_path + f'{num_dirs}/' + 'actions.npy', np.array(actions))
+
                 if not exceed_time and self.examine_success():
                     self.add_text(text="Success!", loc=(230, 30), color="green")
                     time_count = 0
                     if not finish_game:
-                        finish_game = True 
+                        finish_game = True
                         num_dirs = 0
-                        for root, dirs, files in os.walk(game_path + 'succeed/'):
-                            for name in dirs:
-                                num_dirs += 1
-                        data_path = game_path + 'succeed/' + f'{num_dirs}/'
-                        if not os.path.exists(data_path):
-                            os.makedirs(data_path)
-                        np.save(data_path + 'actions.npy', np.array(actions))            
+                        data_path = game_path + 'succeed/'
+                        if os.path.exists(data_path):
+                            num_dirs = len(os.listdir(data_path))
+                        os.makedirs(data_path + f'{num_dirs}/')
+                        np.save(data_path + f'{num_dirs}/' + 'actions.npy', np.array(actions))
                 self.space.step(self.timestep)
                 self.space.debug_draw(self.draw_options)
-                
+
                 pygame.display.flip()
                 self.clock.tick(self.FPS)
             else:
@@ -413,12 +402,11 @@ class IPHYRE():
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
             os.makedirs(game_path)
-        dic = {}
-        dic['balls'] = np.array(self.balls)
-        dic['blocks'] = np.array(self.blocks)
-        dic['eli'] = np.array(self.eli)
-        dic['dynamic'] = np.array(self.dynamic)
-        np.save(game_path +  'property.npy', dic)
+        dic = {'balls': np.array(self.balls),
+               'blocks': np.array(self.blocks),
+               'eli': np.array(self.eli),
+               'dynamic': np.array(self.dynamic)}
+        np.save(game_path + 'property.npy', dic)
         for i, act_list in enumerate(act_lists):  # the step number of each action can be variant
             eli_mask = np.arange(len(self.space.bodies))
             data_path = game_path + f'{i}/'
@@ -440,7 +428,6 @@ class IPHYRE():
                 if step < total_step:
                     p, t = act_list[step][0], act_list[step][1]
                     if time_count >= t:
-                        # p = space.bodies[a].position
                         index = self.eliminate(p)
                         if index != -1:
                             print(f'Step {step}: Click {p} at time {time_count}.')
@@ -456,13 +443,13 @@ class IPHYRE():
                     for i, body in enumerate(self.space.bodies):
                         index = eli_mask[i]
                         property = self.get_property(body, self.shape[i])
-                        if(self.joint):
+                        if self.joint:
                             if index in self.joint:
                                 property[-2] = 1
-                        if(self.spring):
+                        if self.spring:
                             if index in self.spring:
                                 property[-1] = 1
-                        vectors[index].append(property)  
+                        vectors[index].append(property)
                     for j in range(len(vectors)):
                         if j not in eli_mask:
                             vectors[j].append([0] * len(vectors[0][0]))
@@ -509,4 +496,3 @@ if __name__ == '__main__':
     g, m = sys.argv[1], sys.argv[2]
     demo = IPHYRE(g, m)
     demo.run()
-
