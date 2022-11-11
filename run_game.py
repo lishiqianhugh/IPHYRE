@@ -13,7 +13,6 @@ from copy import deepcopy
 
 from game_paras import game_paras
 from solutions import sol
-from utils import *
 
 
 class IPHYRE():
@@ -64,7 +63,7 @@ class IPHYRE():
         self.space.gravity = (0., 100.0)
         self.solutions = sol
 
-        if self.mode != 'collect':
+        if self.mode not in ['collect', 'simulate']:
             pygame.init()
             self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
             pygame.display.set_caption(f"Interactive Physical Reasoning: {self.game}")
@@ -72,18 +71,6 @@ class IPHYRE():
             self.start_button = self.Button(500, 450, 80, 20, 'Start', color='orange')
             self.clock = pygame.time.Clock()
             self.draw_options = pymunk.pygame_util.DrawOptions(self.screen)
-
-    def reset(self):
-        for body in self.space.bodies:
-            shape = list(body.shapes)[0]
-            self.space.remove(shape, shape.body)
-        for joint in self.space.constraints:
-            self.space.remove(joint)
-        self.screen.fill((255, 255, 255))
-        self.add_all()
-        self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
-        self.eli = deepcopy(game_paras[self.game]['eli'])
-        self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
 
     def add_ball(self, b_pos, radius, mass, elasticity, friction):
         moment = pymunk.moment_for_circle(mass, 0, radius)
@@ -167,43 +154,6 @@ class IPHYRE():
                 return i
         return -1
 
-    def button_process(self):
-        mousePos = pygame.mouse.get_pos()
-        self.button.buttonSurface.fill(self.button.fillColors['normal'])
-        if self.button.buttonRect.collidepoint(mousePos):
-            self.button.buttonSurface.fill(self.button.fillColors['hover'])
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                self.button.buttonSurface.fill(self.button.fillColors['pressed'])
-                if not self.button.alreadyPressed:
-                    self.reset()
-                    self.button.alreadyPressed = True
-            else:
-                self.button.alreadyPressed = False
-        self.button.buttonSurface.blit(self.button.buttonSurf, [
-            self.button.buttonRect.width / 2 - self.button.buttonSurf.get_rect().width / 2,
-            self.button.buttonRect.height / 2 - self.button.buttonSurf.get_rect().height / 2
-        ])
-        self.screen.blit(self.button.buttonSurface, self.button.buttonRect)
-        return self.button.alreadyPressed
-
-    def start_process(self):
-        mousePos = pygame.mouse.get_pos()
-        self.start_button.buttonSurface.fill(self.start_button.fillColors['normal'])
-        if self.start_button.buttonRect.collidepoint(mousePos):
-            self.start_button.buttonSurface.fill(self.start_button.fillColors['hover'])
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                self.start_button.buttonSurface.fill(self.start_button.fillColors['pressed'])
-                if not self.start_button.alreadyPressed:
-                    self.start_button.alreadyPressed = True
-            else:
-                self.start_button.alreadyPressed = False
-        self.start_button.buttonSurface.blit(self.start_button.buttonSurf, [
-            self.start_button.buttonRect.width / 2 - self.start_button.buttonSurf.get_rect().width / 2,
-            self.start_button.buttonRect.height / 2 - self.start_button.buttonSurf.get_rect().height / 2
-        ])
-        self.screen.blit(self.start_button.buttonSurface, self.start_button.buttonRect)
-        return self.start_button.alreadyPressed
-
     def examine_success(self):
         success = 0
         for ball in self.space.bodies[-self.num_ball:]:
@@ -213,11 +163,6 @@ class IPHYRE():
             return True
         else:
             return False
-
-    def add_text(self, text="Success!", loc=(230, 30), color="green", font=50):
-        font = pygame.font.Font(None, font)
-        text = font.render(text, True, pygame.Color(color))
-        self.screen.blit(text, loc)
 
     def play(self):
         self.add_all()
@@ -240,9 +185,7 @@ class IPHYRE():
                         start = True
                     if button_pressed:
                         time_count = 0
-                        exceed_time = False
-                        start = False
-                        finish_game = False
+                        finish_game, exceed_time, start = False, False, False
                     if not finish_game and start:
                         self.eliminate(p)
             if start:
@@ -250,8 +193,7 @@ class IPHYRE():
                 if time_count >= self.max_time - self.timestep:
                     self.add_text(text="Failed", loc=(245, 30), color="red")
                     time_count = self.max_time
-                    exceed_time = True
-                    finish_game = True
+                    exceed_time, finish_game = True, True
 
                 if not exceed_time and self.examine_success():
                     self.add_text(text="Success!", loc=(230, 30), color="green")
@@ -271,9 +213,26 @@ class IPHYRE():
         step, time_count = 0, 0
         total_step = len(action)
         while time_count < self.max_time:
+            if step < total_step:
+                p, t = action[step][0: 2], action[step][2]
+                if time_count >= t:
+                    if self.eliminate(p) != -1:
+                        step += 1
+
+            self.space.step(self.timestep)
+            time_count += self.timestep
+            if self.examine_success():
+                return True
+        return False
+
+    def simulate_vis(self, action=None):
+        self.add_all()
+        step, time_count = 0, 0
+        total_step = len(action)
+        while time_count < self.max_time:
             self.screen.fill((255, 255, 255))
             if step < total_step:
-                p, t = action[step][0], action[step][1]
+                p, t = action[step][0: 2], action[step][2]
                 if time_count >= t:
                     if self.eliminate(p) != -1:
                         print(f'Step {step}: Click {p} at time {time_count}.')
@@ -287,35 +246,12 @@ class IPHYRE():
                 self.add_text()
                 pygame.display.flip()
                 time.sleep(2)
-                sys.exit()
+                break
             pygame.display.flip()
             self.clock.tick(self.FPS)
         self.add_text(text="Failed", loc=(245, 30), color="red")
         pygame.display.flip()
         time.sleep(2)
-
-    def get_property(self, body, shape_flag):
-        '''
-        For blocks:
-            Given position and a,b; return the two points of block and radius
-        For balls:
-            return center position and radius,padding 2 zeros
-        the last two digits are left for joint and spring
-        '''
-        x, y = body.position
-        shape = list(body.shapes)[0]
-        if shape_flag:
-            r = 10
-            a_x, a_y = shape.a[0], shape.a[1]
-            b_x, b_y = shape.b[0], shape.b[1]
-            x1 = x + a_x
-            x2 = x + b_x
-            y1 = y + a_y
-            y2 = y + b_y
-            return [x1, y1, x2, y2, r, 0, 0]
-        else:
-            r = shape.radius
-            return [x, y, 0, 0, r, 0, 0]
 
     def collect_while_play(self, save_path='data_player/', fps=2):
         self.add_all()
@@ -350,9 +286,7 @@ class IPHYRE():
                         start = True
                     if button_pressed:
                         time_count = 0
-                        start = False
-                        exceed_time = False
-                        finish_game = False
+                        finish_game, exceed_time, start = False, False, False
                         actions = []
                         eli_mask = np.arange(len(self.space.bodies))
                     if not finish_game and start:
@@ -470,10 +404,86 @@ class IPHYRE():
                     for body in self.space.bodies:
                         print(body.position)
                     np.save(data_path + 'vectors.npy', np.array(vectors))
-                    sys.exit()
+                    break
 
             np.save(data_path + 'vectors.npy', np.array(vectors))
-            sys.exit()
+
+    def get_property(self, body, shape_flag):
+        '''
+        For blocks:
+            Given position and a,b; return the two points of block and radius
+        For balls:
+            return center position and radius,padding 2 zeros
+        the last two digits are left for joint and spring
+        '''
+        x, y = body.position
+        shape = list(body.shapes)[0]
+        if shape_flag:
+            r = 10
+            a_x, a_y = shape.a[0], shape.a[1]
+            b_x, b_y = shape.b[0], shape.b[1]
+            x1 = x + a_x
+            x2 = x + b_x
+            y1 = y + a_y
+            y2 = y + b_y
+            return [x1, y1, x2, y2, r, 0, 0]
+        else:
+            r = shape.radius
+            return [x, y, 0, 0, r, 0, 0]
+
+    def reset(self):
+        for body in self.space.bodies:
+            shape = list(body.shapes)[0]
+            self.space.remove(shape, shape.body)
+        for joint in self.space.constraints:
+            self.space.remove(joint)
+        self.screen.fill((255, 255, 255))
+        self.add_all()
+        self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
+        self.eli = deepcopy(game_paras[self.game]['eli'])
+        self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
+
+    def button_process(self):
+        mousePos = pygame.mouse.get_pos()
+        self.button.buttonSurface.fill(self.button.fillColors['normal'])
+        if self.button.buttonRect.collidepoint(mousePos):
+            self.button.buttonSurface.fill(self.button.fillColors['hover'])
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.button.buttonSurface.fill(self.button.fillColors['pressed'])
+                if not self.button.alreadyPressed:
+                    self.reset()
+                    self.button.alreadyPressed = True
+            else:
+                self.button.alreadyPressed = False
+        self.button.buttonSurface.blit(self.button.buttonSurf, [
+            self.button.buttonRect.width / 2 - self.button.buttonSurf.get_rect().width / 2,
+            self.button.buttonRect.height / 2 - self.button.buttonSurf.get_rect().height / 2
+        ])
+        self.screen.blit(self.button.buttonSurface, self.button.buttonRect)
+        return self.button.alreadyPressed
+
+    def start_process(self):
+        mousePos = pygame.mouse.get_pos()
+        self.start_button.buttonSurface.fill(self.start_button.fillColors['normal'])
+        if self.start_button.buttonRect.collidepoint(mousePos):
+            self.start_button.buttonSurface.fill(self.start_button.fillColors['hover'])
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.start_button.buttonSurface.fill(self.start_button.fillColors['pressed'])
+                if not self.start_button.alreadyPressed:
+                    self.start_button.alreadyPressed = True
+            else:
+                self.start_button.alreadyPressed = False
+        self.start_button.buttonSurface.blit(self.start_button.buttonSurf, [
+            self.start_button.buttonRect.width / 2 - self.start_button.buttonSurf.get_rect().width / 2,
+            self.start_button.buttonRect.height / 2 - self.start_button.buttonSurf.get_rect().height / 2
+        ])
+        self.screen.blit(self.start_button.buttonSurface, self.start_button.buttonRect)
+        return self.start_button.alreadyPressed
+
+    def add_text(self, text="Success!", loc=(230, 30), color="green", font=50):
+        font = pygame.font.Font(None, font)
+        text = font.render(text, True, pygame.Color(color))
+        self.screen.blit(text, loc)
 
     def run(self, act_list=None):
         act_lists = []
@@ -483,13 +493,17 @@ class IPHYRE():
         if self.mode == 'play':
             self.play()
         elif self.mode == 'simulate':
-            self.simulate(act_list)
+            return self.simulate(act_list)
+        elif self.mode == 'simulate_vis':
+            self.simulate_vis(act_list)
         elif self.mode == 'collect':
             self.collect_data(act_lists=act_lists)
         elif self.mode == 'collect_while_play':
             self.collect_while_play()
         else:
-            raise ValueError(f'No such mode {self.mode}. Mode list: (play, simulate, collect, collect_while_play)')
+            raise ValueError(f'No such mode {self.mode}. '
+                             f'Mode list: (play, simulate, simulate_vis, collect, collect_while_play)')
+        return -1
 
 
 if __name__ == '__main__':
