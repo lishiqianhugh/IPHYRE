@@ -62,7 +62,7 @@ class IPHYRE():
         self.space = pymunk.Space()
         self.space.gravity = (0., 100.0)
         self.solutions = sol
-
+        self.screen = None
         if self.mode not in ['collect', 'simulate']:
             pygame.init()
             self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -209,12 +209,11 @@ class IPHYRE():
                 pygame.display.flip()
 
     def simulate(self, action=None):
-        self.add_all()
         step, time_count = 0, 0
         total_step = len(action)
         while time_count < self.max_time:
             if step < total_step:
-                p, t = action[step][0: 2], action[step][2]
+                p, t = action[step][0:2], action[step][2]
                 if time_count >= t:
                     if self.eliminate(p) != -1:
                         step += 1
@@ -222,8 +221,8 @@ class IPHYRE():
             self.space.step(self.timestep)
             time_count += self.timestep
             if self.examine_success():
-                return True
-        return False
+                return 1, step, time_count
+        return 0, step, time_count
 
     def simulate_vis(self, action=None):
         self.add_all()
@@ -437,7 +436,8 @@ class IPHYRE():
             self.space.remove(shape, shape.body)
         for joint in self.space.constraints:
             self.space.remove(joint)
-        self.screen.fill((255, 255, 255))
+        if self.screen:
+            self.screen.fill((255, 255, 255))
         self.add_all()
         self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
         self.eli = deepcopy(game_paras[self.game]['eli'])
