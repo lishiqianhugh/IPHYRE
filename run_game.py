@@ -252,7 +252,7 @@ class IPHYRE():
         pygame.display.flip()
         time.sleep(2)
 
-    def collect_while_play(self, save_path='data_player/', fps=2):
+    def collect_while_play(self, save_path='dataset/data_player/', fps=2):
         self.add_all()
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):

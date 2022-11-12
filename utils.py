@@ -2,7 +2,6 @@ import numpy as np
 import random
 # import torch
 import matplotlib.pyplot as plt
-import pygame
 
 
 def plot_trajectory(traj_x, traj_y):
