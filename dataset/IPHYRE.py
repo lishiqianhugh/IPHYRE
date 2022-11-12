@@ -29,14 +29,16 @@ class IPHYREData(Dataset):
             actions = np.concatenate((succeed_actions, fail_actions))
             self.actions.append(actions)
             self.game_data.append(actions)  # TODO: use game data (image, body_properties)
-        self.actions = np.concatenate(self.actions)
-        self.game_data = np.concatenate(self.game_data)
+        self.actions = np.concatenate(self.actions, dtype=np.float32)
+        self.game_data = np.concatenate(self.game_data, dtype=np.float32)
 
     def __len__(self):
         return len(self.actions)
 
     def __getitem__(self, idx):
-        return self.game_data[idx], self.actions[:, :-3][idx], self.actions[:, -3:][idx]
+        return self.game_data[:, :-3][idx], \
+               self.actions[:, :-3][idx], \
+               self.actions[:, -3:][idx]
 
 
 if __name__ == '__main__':
