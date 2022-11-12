@@ -47,11 +47,11 @@ def generate_action_time(game, num_succeed, num_fail, interval, max_time, max_st
         real_act_time += [0] * (max_step - len(real_act_time))
         if succeed:
             if ns < num_succeed:
-                succeed_list.append([real_act_time + [succeed] + [step] + [time_count]])
+                succeed_list.append(real_act_time + [succeed] + [step] + [time_count])
                 ns += 1
         else:
             if nf < num_fail:
-                fail_list.append([real_act_time + [succeed] + [step] + [time_count]])
+                fail_list.append(real_act_time + [succeed] + [step] + [time_count])
                 nf += 1
         info = f'\r{game}: Found {ns} / {num_succeed} succeed and {nf} / {num_fail} fail after {iteration} iterations.'
         print(info, end='')
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     for i, game in enumerate(game_paras.keys()):
         save_path = f'data/{game}/'
         if not os.path.exists(save_path):
-            print(f'{i+1} / {len(list(game_paras.keys()))}')
+            print(f'{i+1} / {len(game_paras)}')
             num_succeed, num_fail = 50, 50
             slist, flist = generate_action_time(game,
                                                 num_succeed=num_succeed,
