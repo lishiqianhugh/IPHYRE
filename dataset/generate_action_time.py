@@ -61,7 +61,7 @@ def generate_action_time(game, num_succeed, num_fail, interval, max_time, max_st
 
 if __name__ == '__main__':
     for i, game in enumerate(game_paras.keys()):
-        save_path = f'data/{game}/'
+        save_path = f'action_data/{game}/'
         if not os.path.exists(save_path):
             print(f'{i+1} / {len(game_paras)}')
             num_succeed, num_fail = 50, 50

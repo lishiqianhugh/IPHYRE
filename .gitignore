@@ -4,7 +4,8 @@
 
 # Project files
 examples
-data
+action_data
+game_initial_data
 data_player
 
 # User-specific stuff

@@ -12,6 +12,7 @@ import os
 from copy import deepcopy
 
 from game_paras import game_paras
+from game_paras import max_obj_num
 from solutions import sol
 
 
@@ -49,6 +50,7 @@ class IPHYRE():
         self.eli = deepcopy(game_paras[self.game]['eli'])
         self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
         self.num_obj = len(self.eli)
+        self.max_obj_num = max_obj_num
 
         self.joint = None
         if 'joint' in game_paras[self.game].keys():
@@ -329,7 +331,7 @@ class IPHYRE():
                 self.space.debug_draw(self.draw_options)
                 pygame.display.flip()
 
-    def collect_data(self, save_path='data/', act_lists=None, fps=2):  # maximum fps=60
+    def collect_data(self, save_path='dataset/game_data/', act_lists=None, fps=2):  # maximum fps=60
         # actions is a list of actions
         self.add_all()
         game_path = save_path + f'{self.game}/'
@@ -339,7 +341,7 @@ class IPHYRE():
                'blocks': np.array(self.blocks),
                'eli': np.array(self.eli),
                'dynamic': np.array(self.dynamic)}
-        np.save(game_path + 'property.npy', dic)
+        np.save(game_path + 'raw.npy', dic)
         for i, act_list in enumerate(act_lists):  # the step number of each action can be variant
             eli_mask = np.arange(len(self.space.bodies))
             data_path = game_path + f'{i}/'
@@ -350,7 +352,7 @@ class IPHYRE():
                 act_ts = np.array([a[1] for a in act_list])
                 np.save(data_path + 'actions.npy', np.concatenate((act_pos, act_ts.reshape(-1, 1)), axis=-1))
             else:
-                continue  # already get the data stored
+                continue  # already get the action_data stored
             step, time_count = 0, 0.
             total_step = len(act_list)
             interval = self.FPS / fps
@@ -407,7 +409,34 @@ class IPHYRE():
 
             np.save(data_path + 'vectors.npy', np.array(vectors))
 
-    def get_property(self, body, shape_flag):
+    def collect_initial_data(self, save_path='dataset/game_initial_data/', obj_num=max_obj_num):
+        self.add_all()
+        game_path = save_path + f'{self.game}/'
+        if not os.path.exists(game_path):
+            os.makedirs(game_path)
+        dic = {'balls': np.array(self.balls),
+               'blocks': np.array(self.blocks),
+               'eli': np.array(self.eli),
+               'dynamic': np.array(self.dynamic)}
+        np.save(game_path + 'raw.npy', dic)
+        vectors = []
+        for i, body in enumerate(self.space.bodies):
+            property = self.get_property(body, i, self.shape[i])
+            vectors.append(property)
+        vectors += [[0] * len(vectors[0])] * (obj_num - len(vectors))
+        vectors = np.array(vectors)
+        np.save(game_path + 'vectors.npy', vectors)
+
+        fig = plt.figure(figsize=(10, 10))
+        ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
+        ax.set_aspect("equal")
+        ax.set_axis_off()
+        ax.invert_yaxis()
+        o = pymunk.matplotlib_util.DrawOptions(ax)
+        self.space.debug_draw(o)
+        fig.savefig(game_path + 'initial_scene.jpg')
+
+    def get_property(self, body, idx, shape_flag):
         '''
         For blocks:
             Given position and a,b; return the two points of block and radius
@@ -421,14 +450,17 @@ class IPHYRE():
             r = 10
             a_x, a_y = shape.a[0], shape.a[1]
             b_x, b_y = shape.b[0], shape.b[1]
-            x1 = x + a_x
-            x2 = x + b_x
-            y1 = y + a_y
-            y2 = y + b_y
-            return [x1, y1, x2, y2, r, 0, 0]
+            x1, x2 = x + a_x, x + b_x
+            y1, y2 = y + a_y, y + b_y
+            prop = [x1, y1, x2, y2, r, self.eli[idx], self.dynamic[idx], 0, 0]
         else:
             r = shape.radius
-            return [x, y, 0, 0, r, 0, 0]
+            prop = [x, y, 0, 0, r, self.eli[idx], self.dynamic[idx], 0, 0]
+        if 'joint' in game_paras[self.game].keys():
+            prop[-2] = 1
+        if 'spring' in game_paras[self.game].keys():
+            prop[-1] = 1
+        return prop
 
     def reset(self):
         for body in self.space.bodies:
@@ -496,13 +528,16 @@ class IPHYRE():
             return self.simulate(act_list)
         elif self.mode == 'simulate_vis':
             self.simulate_vis(act_list)
-        elif self.mode == 'collect':
+        elif self.mode == 'collect_data':
             self.collect_data(act_lists=act_lists)
+        elif self.mode == 'collect_initial_data':
+            self.collect_initial_data()
         elif self.mode == 'collect_while_play':
             self.collect_while_play()
         else:
             raise ValueError(f'No such mode {self.mode}. '
-                             f'Mode list: (play, simulate, simulate_vis, collect, collect_while_play)')
+                             f'Mode list: (play, simulate, simulate_vis, collect_data, '
+                             f'collect_initial_data, collect_while_play)')
         return -1
 
 

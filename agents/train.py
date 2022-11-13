@@ -9,6 +9,7 @@ import logging
 from dataset.IPHYRE import IPHYREData
 from plan_ahead_models import MlpBase
 from utils import setup_seed
+from game_paras import max_eli_obj_num
 
 
 def arg_parse():
@@ -30,13 +31,14 @@ def train(train_loader, model, opt, loss_fn):
     for i in range(args.epoch):
         sum_loss = []
         mean_acc = []
-        for batch_idx, (game_data, actions, label) in enumerate(train_loader):
-            game_data, actions, label = game_data.to(device), actions.to(device), label.to(device)
-            game_data = Variable(game_data, requires_grad=True)
+        for batch_idx, (initial_scenes, body_property, actions, label) in enumerate(train_loader):
+            body_property, actions, label = body_property.to(device), actions.to(device), label.to(device)
+            body_property = Variable(body_property, requires_grad=True)
             actions = Variable(actions, requires_grad=True)
             label = Variable(label, requires_grad=True)
             opt.zero_grad()
-            out = model(game_data, actions)
+            body_property = body_property.view(args.batch_size, -1)
+            out = model(body_property, actions)
             pred = torch.argmax(out, dim=-1).float()
             acc = (pred == label[:, 0]).sum() / args.batch_size
             label_one_hot = one_hot(label[:, 0].to(torch.int64), 2).float().to(device)
@@ -61,9 +63,9 @@ def eval(test_loader, model, loss_fn):
     with torch.no_grad():
         sum_loss = []
         mean_acc = []
-        for batch_idx, (game_data, actions, label) in enumerate(test_loader):
-            game_data, actions, label = game_data.to(device), actions.to(device), label.to(device)
-            out = model(game_data, actions)
+        for batch_idx, (initial_scenes, body_property, actions, label) in enumerate(test_loader):
+            body_property, actions, label = body_property.to(device), actions.to(device), label.to(device)
+            out = model(body_property, actions)
             pred = torch.argmax(out, dim=-1).float()
             acc = (pred == label[:, 0]).sum() / args.batch_size
             label_one_hot = one_hot(label[:, 0].to(torch.int64), 2).float().to(device)
@@ -90,14 +92,22 @@ if __name__ == '__main__':
     logging.basicConfig(filename=f'exp.log', level=20, format=LOG_FORMAT, datefmt=DATE_FORMAT)
 
     setup_seed(0)
-    train_set = IPHYREData(data_path='../dataset/data/', fold='compositional', train=True)
-    test_set = IPHYREData(data_path='../dataset/data/', fold='compositional', train=False)
+    train_set = IPHYREData(action_data_path='../dataset/action_data/',
+                           game_data_path='../dataset/game_initial_data/',
+                           action_num=50,
+                           fold='compositional',
+                           train=True)
+    test_set = IPHYREData(action_data_path='../dataset/action_data/',
+                          game_data_path='../dataset/game_initial_data/',
+                          action_num=50,
+                          fold='compositional',
+                          train=False)
     kwargs = {'pin_memory': True, 'num_workers': 0}
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, **kwargs)
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # model
-    model = MlpBase(game_dim=6, action_dim=6, hidden_dim=32, obj_num=6)
+    model = MlpBase(game_dim=12*9, action_dim=6, hidden_dim=128, obj_num=max_eli_obj_num)
     model.to(device)
 
     # optimization

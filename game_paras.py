@@ -612,7 +612,16 @@ game_paras = {
     #      },
 }
 
-if __name__ == '__main__':
-    print(f'There are {len(game_paras)} games.')
-    for key in game_paras.keys():
-        print(key, end=' ')
+print(f'There are {len(game_paras)} games.')
+max_obj_num = 0
+max_eli_obj_num = 0
+for key in game_paras.keys():
+    print(key, end=' ')
+    obj_num = len(game_paras[key]['eli'])
+    if obj_num > max_obj_num:
+        max_obj_num = obj_num
+    eli_obj_num = sum(game_paras[key]['eli'])
+    if eli_obj_num > max_eli_obj_num:
+        max_eli_obj_num = eli_obj_num
+print(f'\nThe max obj num is {max_obj_num}.')
+print(f'The max eliminable obj num is {max_eli_obj_num}.')

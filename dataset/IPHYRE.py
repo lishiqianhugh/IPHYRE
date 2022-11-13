@@ -1,12 +1,16 @@
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
+import cv2
+
 from game_paras import game_paras
 from utils import setup_seed
 
 
 class IPHYREData(Dataset):
-    def __init__(self, data_path, fold, train=True):
-        self.data_path = data_path
+    def __init__(self, action_data_path, game_data_path, action_num, fold, train=True):
+        self.action_data_path = action_data_path
+        self.game_data_path = game_data_path
+        self.action_num = action_num
         self.fold = fold
         self.fold_list = ['basic', 'compositional', 'noisy', 'multi_ball']
         assert self.fold in self.fold_list
@@ -21,32 +25,43 @@ class IPHYREData(Dataset):
             self.split = self.train_split
         else:
             self.split = self.test_split
+        self.initial_scenes = []
+        self.body_property = []
         self.actions = []
-        self.game_data = []
+
         for game in self.split:
-            succeed_actions = np.load(data_path + game + '/succeed_actions_50.npy')
-            fail_actions = np.load(data_path + game + '/fail_actions_50.npy')
+            initial_scene = cv2.imread(self.game_data_path + game + '/initial_scene.jpg')
+            self.initial_scenes.append([initial_scene]*self.action_num*2)
+            body_property = np.load(self.game_data_path + game + '/vectors.npy')
+            self.body_property.append([body_property]*self.action_num*2)
+            succeed_actions = np.load(self.action_data_path + game + f'/succeed_actions_{self.action_num}.npy')
+            fail_actions = np.load(self.action_data_path + game + f'/fail_actions_{self.action_num}.npy')
             actions = np.concatenate((succeed_actions, fail_actions))
             self.actions.append(actions)
-            self.game_data.append(actions)  # TODO: use game data (image, body_properties)
+
+        self.initial_scenes = np.concatenate(self.initial_scenes, dtype=np.float32)
+        self.body_property = np.concatenate(self.body_property, dtype=np.float32)
         self.actions = np.concatenate(self.actions, dtype=np.float32)
-        self.game_data = np.concatenate(self.game_data, dtype=np.float32)
 
     def __len__(self):
         return len(self.actions)
 
     def __getitem__(self, idx):
-        return self.game_data[:, :-3][idx], \
+        return self.initial_scenes[idx], \
+               self.body_property[idx], \
                self.actions[:, :-3][idx], \
-               self.actions[:, -3:][idx]
+               self.actions[:, -3:][idx]  # label
 
 
 if __name__ == '__main__':
     setup_seed(0)
-    # train_set = IPHYRE_Data(data_path='data/', fold='compositional', train=True)
-    test_set = IPHYREData(data_path='data/', fold='compositional', train=False)
+    test_set = IPHYREData(action_data_path='action_data/',
+                          game_data_path='game_initial_data/',
+                          action_num=50,
+                          fold='compositional',
+                          train=False)
     kwargs = {'pin_memory': True, 'num_workers': 0}
     test_loader = DataLoader(test_set, batch_size=16, shuffle=True, **kwargs)
-    for game_data, actions, label in test_loader:
-        print(game_data.shape, actions.shape, label.shape)
+    for initial_scenes, body_property, actions, label in test_loader:
+        print(initial_scenes.shape, body_property.shape, actions.shape, label.shape)
         break
