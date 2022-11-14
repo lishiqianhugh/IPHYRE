@@ -262,7 +262,7 @@ class IPHYRE():
                'blocks': np.array(self.blocks),
                'eli': np.array(self.eli),
                'dynamic': np.array(self.dynamic)}
-        np.save(game_path + 'property.npy', dic)
+        np.save(game_path + 'raw.npy', dic)
         finish_game, exceed_time, start = False, False, False
         time_count = 0
 
@@ -376,7 +376,7 @@ class IPHYRE():
                     print(f'{round(time_count, 1)}: eli_mask:{eli_mask}')
                     for i, body in enumerate(self.space.bodies):
                         index = eli_mask[i]
-                        property = self.get_property(body, self.shape[i])
+                        property = self.get_property(body, i, self.shape[i])
                         if self.joint:
                             if index in self.joint:
                                 property[-2] = 1

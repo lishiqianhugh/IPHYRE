@@ -18,7 +18,7 @@ pipreqs .
 ```
 
 ## Games
-Please customize different games in the file `game_paras.py`, which contains the vertices of the blocks and positions and radiuses of the balls. See the following structure as an example:
+Please customize different games in the file `games/game_paras.py`, which contains the vertices of the blocks and positions and radiuses of the balls. See the following structure as an example:
 ```angular2html
 '''
 block: [[x1, y1],[x2, y2]] with a radius of 10
@@ -51,17 +51,27 @@ game_paras = {'support':
               }
 
 ```
-You can run `run_game.py` by specifying `game_name` and `mode` to 'play', 'simulate' or 'collect' with certain game:
+You can run `games/simulator.py` by specifying `game_name` and `mode` to interact with certain game:
 ```angular2html
-python run_game.py hinder play
+python games/simulator.py hinder play
 ```
-* **Play:** play the game in a UI with keyboard signals to eliminate blocks.
-* **Simulate:** simulate the game with the specified actions and present in a UI.
-* **Collect data:** run the simulator to get data of states without a UI.
+See the game list [here](https://lishiqianhugh.github.io/IPHYRE/).
+
+Mode List:
+* **play:** play the game in a UI with mouse clicks to eliminate blocks.
+* **simulate:** simulate the game with the specified actions and only return the final results without a UI.
+* **simulate_vis:** simulate the game with the specified actions and present in a UI.
+* **collect while play:** get raw data and player's successful and failed actions after playing with a UI.
+* **collect data:** get raw data, actions and body properties of dynamic states without a UI.
+* **collect initial data:** get images and body properties of only initial states without a UI.
 
 Run `play_all.sh` to play all games.
 
 Run `collect_while_play_all.sh` to collect data while playing all games.
+
+Run `collect_initial_data_all.sh` to collect data in the initial scenes of all games.
+
+
 
 ## API
 ### collect_data
