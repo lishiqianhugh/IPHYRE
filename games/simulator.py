@@ -13,7 +13,8 @@ from copy import deepcopy
 from game_paras import game_paras
 from game_paras import max_obj_num
 from solutions import sol
-
+import pdb
+import cv2
 
 
 class IPHYRE():
@@ -37,7 +38,7 @@ class IPHYRE():
 
     def __init__(self, game='support', mode='play'):
         self.game, self.mode = game, mode
-        self.HEIGHT, self.WIDTH = 615, 615
+        self.HEIGHT, self.WIDTH = 616, 616
         self.FPS = 60
         self.timestep = 1 / self.FPS
         self.max_time = 15
@@ -390,14 +391,14 @@ class IPHYRE():
                             vectors[j].append([0] * len(vectors[0][0]))
                     print(f'number of bodies:{len(self.space.bodies)}')
                     # self.draw_options = pymunk.SpaceDebugDrawOptions()
-                    fig = plt.figure(dpi=100, figsize=(10, 10))
+                    fig = plt.figure(dpi=100, figsize=(8, 8))
                     ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
-                    ax.set_aspect("equal")
-                    ax.set_axis_off()
-                    ax.invert_yaxis()
                     o = pymunk.matplotlib_util.DrawOptions(ax)
                     self.space.debug_draw(o)
-                    fig.savefig(img_path + f'{round(time_count, 1)}.jpg')
+                    ax.invert_yaxis()
+                    ax.set_axis_off()
+                    ax.set_aspect("equal")
+                    fig.savefig(img_path + f'{round(time_count, 1)}.jpg',bbox_inches='tight', pad_inches = 0)
                 interval_cal += 1
                 time_count += self.timestep
                 if self.examine_success():
@@ -436,18 +437,15 @@ class IPHYRE():
         vectors = np.array(vectors)
         np.save(game_path + 'vectors.npy', vectors)
 
-        fig = plt.figure(dpi=100, figsize=(10, 10))
-        #ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
-        # ax.set_aspect("equal")
-        # ax.set_axis_off()
-        #fig, ax = axes_with_pixels(600,600)
-        #fig, ax = plt.subplots(figsize=(6,6))
+        fig = plt.figure(dpi=100, figsize=(8, 8))
         ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
         o = pymunk.matplotlib_util.DrawOptions(ax)
         self.space.debug_draw(o)
         ax.invert_yaxis()
         ax.set_axis_off()
-        fig.savefig(game_path + 'initial_scene.jpg',bbox_inches='tight')
+        ax.set_aspect("equal")
+        plt.savefig(game_path + 'initial_scene.jpg',bbox_inches='tight', pad_inches = 0)
+     
 
     def get_property(self, body, idx, shape_flag):
         """
