@@ -7,7 +7,6 @@ import pymunk.pygame_util
 import matplotlib.pyplot as plt
 import pymunk.matplotlib_util
 import numpy as np
-import pdb
 import os
 from copy import deepcopy
 
@@ -254,7 +253,7 @@ class IPHYRE():
         pygame.display.flip()
         time.sleep(2)
 
-    def collect_while_play(self, save_path='dataset/data_player/', fps=2):
+    def collect_while_play(self, save_path='../dataset/data_player/', fps=2):
         self.add_all()
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
@@ -331,7 +330,7 @@ class IPHYRE():
                 self.space.debug_draw(self.draw_options)
                 pygame.display.flip()
 
-    def collect_data(self, save_path='dataset/game_data/', act_lists=None, fps=2):  # maximum fps=60
+    def collect_data(self, save_path='../dataset/game_data/', act_lists=None, fps=2):  # maximum fps=60
         # actions is a list of actions
         self.add_all()
         game_path = save_path + f'{self.game}/'
@@ -390,7 +389,7 @@ class IPHYRE():
                             vectors[j].append([0] * len(vectors[0][0]))
                     print(f'number of bodies:{len(self.space.bodies)}')
                     # self.draw_options = pymunk.SpaceDebugDrawOptions()
-                    fig = plt.figure(dpi=600, figsize=(10, 10))
+                    fig = plt.figure(dpi=100, figsize=(10, 10))
                     ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
                     ax.set_aspect("equal")
                     ax.set_axis_off()
@@ -409,7 +408,7 @@ class IPHYRE():
 
             np.save(data_path + 'vectors.npy', np.array(vectors))
 
-    def collect_initial_data(self, save_path='dataset/game_initial_data/', obj_num=max_obj_num):
+    def collect_initial_data(self, save_path='../dataset/game_initial_data/', obj_num=max_obj_num):
         self.add_all()
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
@@ -427,7 +426,7 @@ class IPHYRE():
         vectors = np.array(vectors)
         np.save(game_path + 'vectors.npy', vectors)
 
-        fig = plt.figure(dpi=600, figsize=(10, 10))
+        fig = plt.figure(dpi=100, figsize=(10, 10))
         ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
         ax.set_aspect("equal")
         ax.set_axis_off()

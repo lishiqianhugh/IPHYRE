@@ -2,7 +2,7 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import cv2
 
-from game_paras import game_paras
+from games.game_paras import game_paras
 from utils import setup_seed
 
 

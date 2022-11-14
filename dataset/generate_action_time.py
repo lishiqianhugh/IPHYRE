@@ -3,8 +3,8 @@ from random import sample
 import os
 import logging
 
-from run_game import IPHYRE
-from game_paras import game_paras
+from games.simulator import IPHYRE
+from games.game_paras import game_paras
 from utils import setup_seed
 
 

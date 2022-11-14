@@ -9,7 +9,7 @@ import logging
 from dataset.IPHYRE import IPHYREData
 from plan_ahead_models import MlpBase
 from utils import setup_seed
-from game_paras import max_eli_obj_num
+from games.game_paras import max_eli_obj_num
 
 
 def arg_parse():
@@ -51,7 +51,7 @@ def train(train_loader, model, opt, loss_fn):
 
         mean_loss = np.mean(sum_loss)
         mean_acc = correct / len(train_loader.dataset)
-        info = f"#######  epoch {i} loss : {mean_loss} acc: {mean_acc} #########"
+        info = f"epoch {i} loss : {mean_loss: .4f} acc: {mean_acc: .4f}"
         print(info)
         logging.info(info)
 
@@ -74,7 +74,7 @@ def eval(test_loader, model, loss_fn):
 
         mean_loss = np.mean(sum_loss)
         mean_acc = correct / len(test_loader.dataset)
-        info = f"#######  test loss: {mean_loss} mean acc: {mean_acc} #########"
+        info = f"test loss: {mean_loss:.4f} mean acc: {mean_acc:.4f}"
         print(info)
         logging.info(info)
 
