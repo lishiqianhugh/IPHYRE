@@ -15,6 +15,7 @@ from game_paras import max_obj_num
 from solutions import sol
 
 
+
 class IPHYRE():
     class Button():
         def __init__(self, x, y, width, height, buttonText='Button', color='blue'):
@@ -36,7 +37,7 @@ class IPHYRE():
 
     def __init__(self, game='support', mode='play'):
         self.game, self.mode = game, mode
-        self.HEIGHT, self.WIDTH = 600, 600
+        self.HEIGHT, self.WIDTH = 615, 615
         self.FPS = 60
         self.timestep = 1 / self.FPS
         self.max_time = 15
@@ -409,6 +410,15 @@ class IPHYRE():
             np.save(data_path + 'vectors.npy', np.array(vectors))
 
     def collect_initial_data(self, save_path='../dataset/game_initial_data/', obj_num=max_obj_num):
+
+        def axes_with_pixels(width, height, margin=0.2):
+            px = 1/plt.rcParams['figure.dpi']
+            fig_width, fig_height = np.array([width, height]) / (1 - 2 * margin)
+            fig, ax = plt.subplots(figsize=(fig_width*px, fig_height*px))
+            fig.subplots_adjust(left=margin, right=1-margin,
+                                bottom=margin, top=1-margin)
+            return fig, ax
+
         self.add_all()
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
@@ -427,13 +437,17 @@ class IPHYRE():
         np.save(game_path + 'vectors.npy', vectors)
 
         fig = plt.figure(dpi=100, figsize=(10, 10))
+        #ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
+        # ax.set_aspect("equal")
+        # ax.set_axis_off()
+        #fig, ax = axes_with_pixels(600,600)
+        #fig, ax = plt.subplots(figsize=(6,6))
         ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
-        ax.set_aspect("equal")
-        ax.set_axis_off()
-        ax.invert_yaxis()
         o = pymunk.matplotlib_util.DrawOptions(ax)
         self.space.debug_draw(o)
-        fig.savefig(game_path + 'initial_scene.jpg')
+        ax.invert_yaxis()
+        ax.set_axis_off()
+        fig.savefig(game_path + 'initial_scene.jpg',bbox_inches='tight')
 
     def get_property(self, body, idx, shape_flag):
         """
