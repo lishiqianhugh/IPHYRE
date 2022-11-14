@@ -3,7 +3,6 @@ from torch.utils.data import Dataset, DataLoader
 import cv2
 
 from game_paras import game_paras
-from game_paras import max_obj_num
 from utils import setup_seed
 
 
