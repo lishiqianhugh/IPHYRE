@@ -30,29 +30,27 @@ def train(train_loader, model, opt, loss_fn):
     model.train()
     for i in range(args.epoch):
         sum_loss = []
-        mean_acc = []
+        correct = 0
         for batch_idx, (initial_scenes, body_property, actions, label) in enumerate(train_loader):
             body_property, actions, label = body_property.to(device), actions.to(device), label.to(device)
             body_property = Variable(body_property, requires_grad=True)
             actions = Variable(actions, requires_grad=True)
             label = Variable(label, requires_grad=True)
+            body_property = body_property.view(body_property.shape[0], -1)
+
             opt.zero_grad()
-            body_property = body_property.view(args.batch_size, -1)
             out = model(body_property, actions)
             pred = torch.argmax(out, dim=-1).float()
-            acc = (pred == label[:, 0]).sum() / args.batch_size
+            correct += (pred == label[:, 0]).sum().cpu().detach().numpy()
             label_one_hot = one_hot(label[:, 0].to(torch.int64), 2).float().to(device)
             loss = loss_fn(out, label_one_hot)
             loss.backward()
             opt.step()
             scheduler.step()
-
             sum_loss.append(loss.cpu().detach().numpy())
-            mean_acc.append(acc.cpu().detach().numpy())
 
-            # print(f'epoch {i} batch {batch_idx} loss: {loss:.4f}')
         mean_loss = np.mean(sum_loss)
-        mean_acc = np.mean(mean_acc)
+        mean_acc = correct / len(train_loader.dataset)
         info = f"#######  epoch {i} loss : {mean_loss} acc: {mean_acc} #########"
         print(info)
         logging.info(info)
@@ -62,18 +60,20 @@ def eval(test_loader, model, loss_fn):
     model.eval()
     with torch.no_grad():
         sum_loss = []
-        mean_acc = []
+        correct = 0
         for batch_idx, (initial_scenes, body_property, actions, label) in enumerate(test_loader):
             body_property, actions, label = body_property.to(device), actions.to(device), label.to(device)
+            body_property = body_property.view(body_property.shape[0], -1)
+
             out = model(body_property, actions)
             pred = torch.argmax(out, dim=-1).float()
-            acc = (pred == label[:, 0]).sum() / args.batch_size
+            correct += (pred == label[:, 0]).sum().cpu().detach().numpy()
             label_one_hot = one_hot(label[:, 0].to(torch.int64), 2).float().to(device)
             loss = loss_fn(out, label_one_hot)
             sum_loss.append(loss.cpu().detach().numpy())
-            mean_acc.append(acc.cpu().detach().numpy())
+
         mean_loss = np.mean(sum_loss)
-        mean_acc = np.mean(mean_acc)
+        mean_acc = correct / len(test_loader.dataset)
         info = f"#######  test loss: {mean_loss} mean acc: {mean_acc} #########"
         print(info)
         logging.info(info)
@@ -85,6 +85,7 @@ if __name__ == '__main__':
         device = 'cuda'
     else:
         device = 'cpu'
+    print('Using', device)
 
     # logging
     LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"

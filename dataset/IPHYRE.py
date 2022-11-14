@@ -3,6 +3,7 @@ from torch.utils.data import Dataset, DataLoader
 import cv2
 
 from game_paras import game_paras
+from game_paras import max_obj_num
 from utils import setup_seed
 
 
@@ -31,9 +32,9 @@ class IPHYREData(Dataset):
 
         for game in self.split:
             initial_scene = cv2.imread(self.game_data_path + game + '/initial_scene.jpg')
-            self.initial_scenes.append([initial_scene]*self.action_num*2)
+            self.initial_scenes.append([initial_scene] * self.action_num * 2)
             body_property = np.load(self.game_data_path + game + '/vectors.npy')
-            self.body_property.append([body_property]*self.action_num*2)
+            self.body_property.append([body_property] * self.action_num * 2)
             succeed_actions = np.load(self.action_data_path + game + f'/succeed_actions_{self.action_num}.npy')
             fail_actions = np.load(self.action_data_path + game + f'/fail_actions_{self.action_num}.npy')
             actions = np.concatenate((succeed_actions, fail_actions))
@@ -55,13 +56,13 @@ class IPHYREData(Dataset):
 
 if __name__ == '__main__':
     setup_seed(0)
-    test_set = IPHYREData(action_data_path='action_data/',
-                          game_data_path='game_initial_data/',
-                          action_num=50,
-                          fold='compositional',
-                          train=False)
+    train_set = IPHYREData(action_data_path='action_data/',
+                           game_data_path='game_initial_data/',
+                           action_num=50,
+                           fold='compositional',
+                           train=True)
     kwargs = {'pin_memory': True, 'num_workers': 0}
-    test_loader = DataLoader(test_set, batch_size=16, shuffle=True, **kwargs)
-    for initial_scenes, body_property, actions, label in test_loader:
+    train_loader = DataLoader(train_set, batch_size=16, shuffle=True, **kwargs)
+    for initial_scenes, body_property, actions, label in train_loader:
         print(initial_scenes.shape, body_property.shape, actions.shape, label.shape)
         break

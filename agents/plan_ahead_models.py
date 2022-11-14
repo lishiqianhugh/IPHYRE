@@ -24,7 +24,7 @@ class MlpBase(nn.Module):
     def forward(self, game_data, action):
         x1 = self.game_encoder(game_data)
         x2 = self.action_encoder(action)
-        x = x1 + x2
+        x = 0 * x1 + x2
         out = self.decision(x)
         return out
 

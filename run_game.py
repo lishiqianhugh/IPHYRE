@@ -390,7 +390,7 @@ class IPHYRE():
                             vectors[j].append([0] * len(vectors[0][0]))
                     print(f'number of bodies:{len(self.space.bodies)}')
                     # self.draw_options = pymunk.SpaceDebugDrawOptions()
-                    fig = plt.figure(figsize=(10, 10))
+                    fig = plt.figure(dpi=600, figsize=(10, 10))
                     ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
                     ax.set_aspect("equal")
                     ax.set_axis_off()
@@ -427,7 +427,7 @@ class IPHYRE():
         vectors = np.array(vectors)
         np.save(game_path + 'vectors.npy', vectors)
 
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(dpi=600, figsize=(10, 10))
         ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
         ax.set_aspect("equal")
         ax.set_axis_off()
@@ -437,13 +437,13 @@ class IPHYRE():
         fig.savefig(game_path + 'initial_scene.jpg')
 
     def get_property(self, body, idx, shape_flag):
-        '''
+        """
         For blocks:
-            Given position and a,b; return the two points of block and radius
+            Given position and a, b
+            Return the two end points, radius, eli, dynamic, joint and spring
         For balls:
-            return center position and radius,padding 2 zeros
-        the last two digits are left for joint and spring
-        '''
+            Return duplicated center position, radius, eli, dynamic, joint and spring
+        """
         x, y = body.position
         shape = list(body.shapes)[0]
         if shape_flag:
@@ -455,11 +455,13 @@ class IPHYRE():
             prop = [x1, y1, x2, y2, r, self.eli[idx], self.dynamic[idx], 0, 0]
         else:
             r = shape.radius
-            prop = [x, y, 0, 0, r, self.eli[idx], self.dynamic[idx], 0, 0]
+            prop = [x, y, x, y, r, self.eli[idx], self.dynamic[idx], 0, 0]
         if 'joint' in game_paras[self.game].keys():
-            prop[-2] = 1
+            if idx in sum(game_paras[self.game]['joint'], []):
+                prop[-2] = 1
         if 'spring' in game_paras[self.game].keys():
-            prop[-1] = 1
+            if idx in sum(game_paras[self.game]['spring'], []):
+                prop[-1] = 1
         return prop
 
     def reset(self):
