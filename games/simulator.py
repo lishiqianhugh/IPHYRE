@@ -38,7 +38,7 @@ class IPHYRE():
 
     def __init__(self, game='support', mode='play'):
         self.game, self.mode = game, mode
-        self.HEIGHT, self.WIDTH = 616, 616
+        self.HEIGHT, self.WIDTH = 600, 600
         self.FPS = 60
         self.timestep = 1 / self.FPS
         self.max_time = 15
@@ -361,6 +361,7 @@ class IPHYRE():
             vectors = [[]] * len(self.space.bodies)
 
             while time_count < self.max_time:
+                self.screen.fill((255, 255, 255))
                 if step < total_step:
                     p, t = act_list[step][0], act_list[step][1]
                     if time_count >= t:
@@ -390,15 +391,10 @@ class IPHYRE():
                         if j not in eli_mask:
                             vectors[j].append([0] * len(vectors[0][0]))
                     print(f'number of bodies:{len(self.space.bodies)}')
-                    # self.draw_options = pymunk.SpaceDebugDrawOptions()
-                    fig = plt.figure(dpi=100, figsize=(8, 8))
-                    ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
-                    o = pymunk.matplotlib_util.DrawOptions(ax)
-                    self.space.debug_draw(o)
-                    ax.invert_yaxis()
-                    ax.set_axis_off()
-                    ax.set_aspect("equal")
-                    fig.savefig(img_path + f'{round(time_count, 1)}.jpg',bbox_inches='tight', pad_inches = 0)
+                    self.space.debug_draw(self.draw_options)
+                    pygame.display.flip()
+                    pygame.image.save(self.screen, img_path + f'{round(time_count, 1)}.jpg')
+
                 interval_cal += 1
                 time_count += self.timestep
                 if self.examine_success():
@@ -411,16 +407,8 @@ class IPHYRE():
             np.save(data_path + 'vectors.npy', np.array(vectors))
 
     def collect_initial_data(self, save_path='../dataset/game_initial_data/', obj_num=max_obj_num):
-
-        def axes_with_pixels(width, height, margin=0.2):
-            px = 1/plt.rcParams['figure.dpi']
-            fig_width, fig_height = np.array([width, height]) / (1 - 2 * margin)
-            fig, ax = plt.subplots(figsize=(fig_width*px, fig_height*px))
-            fig.subplots_adjust(left=margin, right=1-margin,
-                                bottom=margin, top=1-margin)
-            return fig, ax
-
         self.add_all()
+        self.screen.fill((255, 255, 255))
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
             os.makedirs(game_path)
@@ -437,15 +425,9 @@ class IPHYRE():
         vectors = np.array(vectors)
         np.save(game_path + 'vectors.npy', vectors)
 
-        fig = plt.figure(dpi=100, figsize=(8, 8))
-        ax = plt.axes(xlim=(0, self.HEIGHT), ylim=(0, self.WIDTH))
-        o = pymunk.matplotlib_util.DrawOptions(ax)
-        self.space.debug_draw(o)
-        ax.invert_yaxis()
-        ax.set_axis_off()
-        ax.set_aspect("equal")
-        plt.savefig(game_path + 'initial_scene.jpg',bbox_inches='tight', pad_inches = 0)
-     
+        self.space.debug_draw(self.draw_options)
+        pygame.display.flip()
+        pygame.image.save(self.screen, game_path + f'{self.game}.jpg')
 
     def get_property(self, body, idx, shape_flag):
         """
