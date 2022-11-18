@@ -1,8 +1,11 @@
+import os
+
 import numpy as np
 import random
 # import torch
 import matplotlib.pyplot as plt
 import cv2
+from games.game_paras import game_paras
 
 
 def plot_trajectory(traj_x, traj_y):
@@ -26,7 +29,7 @@ def draw_bbox(im_path, vectors_path):
     vectors = np.load(vectors_path)
     for vector in vectors:
         x1, y1, x2, y2, r = vector[:5]
-        x1, y1, x2, y2, r = int(y1)-1, int(x1)-1, int(y2)-1, int(x2)-1, int(r)-1
+        x1, y1, x2, y2, r = int(y1) - 1, int(x1) - 1, int(y2) - 1, int(x2) - 1, int(r) - 1
         x1 = min(x1, x2)
         x2 = max(x1, x2)
         y1 = min(y1, y2)
@@ -40,6 +43,20 @@ def draw_bbox(im_path, vectors_path):
     cv2.waitKey(0)
 
 
+def reorganize_images(generated_dir='dataset/game_initial_data/',
+                      save_dir='games/images/'):
+    fold_list = ['basic', 'compositional', 'noisy', 'multi_ball']
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    for i, fold in enumerate(fold_list):
+        for game in list(game_paras.keys())[i * 10: (i + 1) * 10]:
+            save_path = save_dir + f'{fold}_{game}.jpg'
+            im_path = generated_dir + f'{game}/' + f'{game}.jpg'
+            image = cv2.imread(im_path)
+            cv2.imwrite(save_path, image)
+
+
 if __name__ == '__main__':
-    draw_bbox('../dataset/game_initial_data/spring_flick/spring_flick.jpg',
-              '../dataset/game_initial_data/spring_flick/vectors.npy')
+    # draw_bbox('../dataset/game_initial_data/spring_flick/spring_flick.jpg',
+    #           '../dataset/game_initial_data/spring_flick/vectors.npy')
+    reorganize_images()
