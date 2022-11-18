@@ -30,7 +30,7 @@ class IPHYREData(Dataset):
         self.actions = []
 
         for game in self.split:
-            initial_scene = cv2.imread(self.game_data_path + game + '/initial_scene.jpg')
+            initial_scene = cv2.imread(self.game_data_path + game + f'/{game}.jpg')
             self.initial_scenes.append([initial_scene] * self.action_num * 2)
             body_property = np.load(self.game_data_path + game + '/vectors.npy')
             self.body_property.append([body_property] * self.action_num * 2)
