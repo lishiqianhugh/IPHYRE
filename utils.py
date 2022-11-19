@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import random
-# import torch
+import torch
 import matplotlib.pyplot as plt
 import cv2
 from games.game_paras import game_paras

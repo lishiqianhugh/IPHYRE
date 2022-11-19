@@ -65,11 +65,13 @@ Mode List:
 * **collect data:** get raw data, actions and body properties of dynamic states without a UI.
 * **collect initial data:** get images and body properties of only initial states without a UI.
 
-Run `play_all.sh` to play all games.
+Run `scripts/play_all.sh` to play all games.
 
-Run `collect_while_play_all.sh` to collect data while playing all games.
+Run `scripts/collect_while_play_all.sh` to collect data while playing all games.
 
-Run `collect_initial_data_all.sh` to collect data in the initial scenes of all games.
+Run `scripts/collect_initial_data_all.sh` to collect data in the initial scenes of all games.
+
+Run `scripts/train_all.sh` to train all the four folds.
 
 
 
