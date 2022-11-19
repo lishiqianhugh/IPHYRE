@@ -56,7 +56,23 @@ def reorganize_images(generated_dir='dataset/game_initial_data/',
             cv2.imwrite(save_path, image)
 
 
+def print_generated_actions(dataset_path='dataset/action_data/'):
+    print('##################### succeed #####################')
+    for game in game_paras.keys():
+        succeed_path = dataset_path + f'{game}/succeed_actions_50.npy'
+        succeed_data = np.load(succeed_path)
+        print(game)
+        print(succeed_data)
+    print('##################### fail #####################')
+    for game in game_paras.keys():
+        fail_path = dataset_path + f'{game}/fail_actions_50.npy'
+        fail_data = np.load(fail_path)
+        print(game)
+        print(fail_data)
+
+
 if __name__ == '__main__':
     # draw_bbox('../dataset/game_initial_data/spring_flick/spring_flick.jpg',
     #           '../dataset/game_initial_data/spring_flick/vectors.npy')
-    reorganize_images()
+    # reorganize_images()
+    print_generated_actions()

@@ -4,7 +4,6 @@ import pygame
 from pygame.locals import *
 import pymunk
 import pymunk.pygame_util
-import matplotlib.pyplot as plt
 import pymunk.matplotlib_util
 import numpy as np
 import os
@@ -14,7 +13,6 @@ from game_paras import game_paras
 from game_paras import max_obj_num
 from solutions import sol
 import pdb
-import cv2
 
 
 class IPHYRE():

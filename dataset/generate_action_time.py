@@ -2,6 +2,8 @@ import numpy as np
 from random import sample
 import os
 import logging
+import sys
+sys.path.append('../games')
 
 from games.simulator import IPHYRE
 from games.game_paras import game_paras
@@ -13,7 +15,7 @@ DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
 logging.basicConfig(filename=f'generate.log', level=20, format=LOG_FORMAT, datefmt=DATE_FORMAT)
 
 
-def generate_action_time(game, num_succeed, num_fail, interval, max_time, max_step):
+def generate_action_time(game, num_succeed, num_fail, interval, max_game_time, max_action_time, max_step):
     def time_order(a):
         return a[-1]
 
@@ -25,7 +27,8 @@ def generate_action_time(game, num_succeed, num_fail, interval, max_time, max_st
     setup_seed(0)
     succeed_list, fail_list = [], []
     sampled_action = []
-    time_steps = [t for t in np.arange(interval, max_time, interval)]
+    assert max_action_time <= max_game_time
+    time_steps = [t for t in np.arange(0, max_action_time, interval)]
     ns, nf, iteration = 0, 0, 0
     demo = IPHYRE(game, 'simulate')
     eli_idx = np.where(np.array(game_paras[game]['eli']) == 1)
@@ -39,11 +42,11 @@ def generate_action_time(game, num_succeed, num_fail, interval, max_time, max_st
             act_time = sample(time_steps, n_step)
         sampled_action.append(act_time)
         # the action should be sorted according to the time order
-        action = [return_center(eli_blocks[i]) + [t] for (i, t) in enumerate(act_time)]
+        action = [return_center(eli_blocks[i]) + [t] for i, t in enumerate(act_time) if t != 0]
         action.sort(key=time_order)
         succeed, step, time_count = demo.run(action)
-        time_count = min(time_count, max_time)
-        real_act_time = [t for t in act_time if t <= time_count]
+        # time_count = min(time_count, max_game_time)
+        real_act_time = [t * (t <= time_count) for t in act_time]
         real_act_time += [0] * (max_step - len(real_act_time))
         if succeed:
             if ns < num_succeed:
@@ -69,7 +72,8 @@ if __name__ == '__main__':
                                                 num_succeed=num_succeed,
                                                 num_fail=num_fail,
                                                 interval=0.1,
-                                                max_time=15.,
+                                                max_game_time=15.,
+                                                max_action_time=10.,
                                                 max_step=6)
             print(f'\nsucceed_list: {slist}')
             print(f'fail_list: {flist}\n')

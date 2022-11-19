@@ -7,10 +7,12 @@ from utils import setup_seed
 
 
 class IPHYREData(Dataset):
-    def __init__(self, action_data_path, game_data_path, action_num, fold, train=True):
+    def __init__(self, action_data_path, game_data_path, num_succeed, num_fail, fold, train=True):
         self.action_data_path = action_data_path
         self.game_data_path = game_data_path
-        self.action_num = action_num
+        self.num_succeed = num_succeed
+        self.num_fail = num_fail
+        self.action_num = self.num_succeed + self.num_fail
         self.fold = fold
         self.fold_list = ['basic', 'compositional', 'noisy', 'multi_ball']
         assert self.fold in self.fold_list
@@ -25,17 +27,19 @@ class IPHYREData(Dataset):
             self.split = self.train_split
         else:
             self.split = self.test_split
+        self.game_names = []
         self.initial_scenes = []
         self.body_property = []
         self.actions = []
 
         for game in self.split:
+            self.game_names += [game] * self.action_num
             initial_scene = cv2.imread(self.game_data_path + game + f'/{game}.jpg')
-            self.initial_scenes.append([initial_scene] * self.action_num * 2)
+            self.initial_scenes.append([initial_scene] * self.action_num)
             body_property = np.load(self.game_data_path + game + '/vectors.npy')
-            self.body_property.append([body_property] * self.action_num * 2)
-            succeed_actions = np.load(self.action_data_path + game + f'/succeed_actions_{self.action_num}.npy')
-            fail_actions = np.load(self.action_data_path + game + f'/fail_actions_{self.action_num}.npy')
+            self.body_property.append([body_property] * self.action_num)
+            succeed_actions = np.load(self.action_data_path + game + f'/succeed_actions_{self.num_succeed}.npy')
+            fail_actions = np.load(self.action_data_path + game + f'/fail_actions_{self.num_fail}.npy')
             actions = np.concatenate((succeed_actions, fail_actions))
             self.actions.append(actions)
 
@@ -47,7 +51,8 @@ class IPHYREData(Dataset):
         return len(self.actions)
 
     def __getitem__(self, idx):
-        return self.initial_scenes[idx], \
+        return self.game_names[idx],\
+               self.initial_scenes[idx], \
                self.body_property[idx], \
                self.actions[:, :-3][idx], \
                self.actions[:, -3:][idx]  # label
@@ -57,7 +62,8 @@ if __name__ == '__main__':
     setup_seed(0)
     train_set = IPHYREData(action_data_path='action_data/',
                            game_data_path='game_initial_data/',
-                           action_num=50,
+                           num_succeed=50,
+                           num_fail=50,
                            fold='compositional',
                            train=True)
     kwargs = {'pin_memory': True, 'num_workers': 0}
