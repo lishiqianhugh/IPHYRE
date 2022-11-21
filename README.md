@@ -1,9 +1,25 @@
 # IPHYRE
 This is a project to explore **I**nteractive **PHY**sical **RE**asoning.
 
-[[Slide](https://docs.google.com/presentation/d/1OKlC00aDkR0MthhsVOM7LSOSjqk3Htxw/edit?usp=sharing&ouid=102328237315023582126&rtpof=true&sd=true)][[Intro](https://docs.google.com/document/d/1Z3e2mT0AolBsJ7iLIp-K531QlIDqqAXhijRO1hB4Olw/edit?usp=sharing)][[Game](https://www.youtube.com/watch?v=Ko2ZIc9YypY)]
+<p align="left">
+    <a href='https://docs.google.com/presentation/d/1OKlC00aDkR0MthhsVOM7LSOSjqk3Htxw/edit?usp=sharing&ouid=102328237315023582126&rtpof=true&sd=true'>
+      <img src='https://img.shields.io/badge/Slide-.PPTX-green?style=plastic&logo=Google%20chrome&logoColor=green' alt='Slide'>
+    </a>
+    <a href='https://docs.google.com/document/d/1Z3e2mT0AolBsJ7iLIp-K531QlIDqqAXhijRO1hB4Olw/edit?usp=sharing'>
+      <img src='https://img.shields.io/badge/Intro-.DOCS-purple?style=plastic&logo=Google%20chrome&logoColor=purple' alt='Intro'>
+    </a>
+    <a href='https://www.youtube.com/watch?v=Ko2ZIc9YypY'>
+      <img src='https://img.shields.io/badge/Games-YouTube-blue?style=plastic&logo=Google%20chrome&logoColor=blue' alt='YouTube Games'>
+    </a>
+     <a href='https://lishiqianhugh.github.io/IPHYRE/'>
+      <img src='https://img.shields.io/badge/Games-Page-yellow?style=plastic&logo=Google%20chrome&logoColor=yellow' alt='Games'>
+    </a>
+    </a>
+     <a href='https://github.com/viblo/pymunk'>
+      <img src='https://img.shields.io/badge/Pymunk-github-red?style=plastic&logo=Google%20chrome&logoColor=red' alt='Pymunk'>
+    </a>
+</p>
 
-[[pymunk github](https://github.com/viblo/pymunk)]
 
 ## Getting start
 Run the command below to install all the packages required in this project.
