@@ -7,9 +7,9 @@ import argparse
 import logging
 
 from dataset.iphyre import IPHYREData
-from agents.plan_ahead_models import MlpBase
+from agents.plan_ahead_models import *
 from utils import setup_seed
-from games.game_paras import max_eli_obj_num
+from games.game_paras import max_eli_obj_num, max_obj_num
 
 
 def arg_parse():
@@ -38,7 +38,6 @@ def train(train_loader, model, opt, loss_fn):
             body_property = Variable(body_property, requires_grad=True)
             actions = Variable(actions, requires_grad=True)
             label = Variable(label, requires_grad=True)
-            body_property = body_property.view(body_property.shape[0], -1)
 
             opt.zero_grad()
             out = model(body_property, actions)
@@ -66,10 +65,9 @@ def eval(test_loader, model, loss_fn):
         correct = 0
         correct_per_game = {}
         for key in test_set.game_names:
-            correct_per_game[key] = 0
+            correct_per_game[key] = [0, 0]
         for batch_idx, (game_names, initial_scenes, body_property, actions, label) in enumerate(test_loader):
             body_property, actions, label = body_property.to(device), actions.to(device), label.to(device)
-            body_property = body_property.view(body_property.shape[0], -1)
 
             out = model(body_property, actions)
             pred = torch.argmax(out, dim=-1).float()
@@ -78,8 +76,8 @@ def eval(test_loader, model, loss_fn):
             label_one_hot = one_hot(label[:, 0].to(torch.int64), 2).float().to(device)
             loss = loss_fn(out, label_one_hot)
             sum_loss.append(loss.cpu().detach().numpy())
-            for game, corr in zip(game_names, batch_correct):
-                correct_per_game[game] += corr
+            for game, corr, lab in zip(game_names, batch_correct, label[:, 0]):
+                correct_per_game[game][lab.int()] += corr
 
         mean_loss = np.mean(sum_loss)
         mean_acc = correct / len(test_loader.dataset)
@@ -103,13 +101,13 @@ if __name__ == '__main__':
     logging.info(f'Fold: {args.fold} Seed: {args.seed}')
 
     setup_seed(args.seed)
-    train_set = IPHYREData(action_data_path='dataset/action_data/',
+    train_set = IPHYREData(action_data_path='dataset/action_data_7s/',
                            game_data_path='dataset/game_initial_data/',
                            num_succeed=50,
                            num_fail=50,
                            fold=args.fold,
                            train=True)
-    test_set = IPHYREData(action_data_path='dataset/action_data/',
+    test_set = IPHYREData(action_data_path='dataset/action_data_7s/',
                           game_data_path='dataset/game_initial_data/',
                           num_succeed=50,
                           num_fail=50,
@@ -120,7 +118,8 @@ if __name__ == '__main__':
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # model
-    model = MlpBase(game_dim=12 * 9, action_dim=6, hidden_dim=128, obj_num=max_eli_obj_num)
+    # model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, obj_num=max_obj_num, mode='cat')
+    model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=max_obj_num, mode='add')
     model.to(device)
 
     # optimization
