@@ -31,21 +31,33 @@ class IPHYREData(Dataset):
         self.initial_scenes = []
         self.body_property = []
         self.actions = []
+        self.labels = []
 
         for game in self.split:
             self.game_names += [game] * self.action_num
             initial_scene = cv2.imread(self.game_data_path + game + f'/{game}.jpg')
             self.initial_scenes.append([initial_scene] * self.action_num)
             body_property = np.load(self.game_data_path + game + '/vectors.npy')
+            body_property[:, :5] /= 600
             self.body_property.append([body_property] * self.action_num)
             succeed_actions = np.load(self.action_data_path + game + f'/succeed_actions_{self.num_succeed}.npy')
             fail_actions = np.load(self.action_data_path + game + f'/fail_actions_{self.num_fail}.npy')
-            actions = np.concatenate((succeed_actions, fail_actions))
-            self.actions.append(actions)
+            actions = np.concatenate((succeed_actions[:, :-3], fail_actions[:, :-3]))
+            self.labels.append(np.concatenate((succeed_actions[:, -3:], fail_actions[:, -3:])))
+            # complete action
+            complete_actions = np.zeros((self.action_num, body_property.shape[0]))
+            for i, acts in enumerate(actions):
+                k = 0
+                for j, bps in enumerate(body_property):
+                    if bps[-4] == 1:
+                        complete_actions[i][j] = acts[k]
+                        k += 1
+            self.actions.append(complete_actions)
 
         self.initial_scenes = np.concatenate(self.initial_scenes, dtype=np.float32)
         self.body_property = np.concatenate(self.body_property, dtype=np.float32)
         self.actions = np.concatenate(self.actions, dtype=np.float32)
+        self.labels = np.concatenate(self.labels, dtype=np.float32)
 
     def __len__(self):
         return len(self.actions)
@@ -54,8 +66,8 @@ class IPHYREData(Dataset):
         return self.game_names[idx],\
                self.initial_scenes[idx], \
                self.body_property[idx], \
-               self.actions[:, :-3][idx], \
-               self.actions[:, -3:][idx]  # label
+               self.actions[idx], \
+               self.labels[idx]
 
 
 if __name__ == '__main__':
