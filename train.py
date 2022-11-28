@@ -16,6 +16,10 @@ def arg_parse():
     parser = argparse.ArgumentParser(description='Plan Ahead Parameters')
     parser.add_argument('--fold', required=False, type=str, default='compositional',
                         choices=['basic', 'compositional', 'noisy', 'multi_ball'])
+    parser.add_argument('--model', required=False, type=str, default='VisionFusion',
+                        choices=['GlobalFusion', 'ObjectFusion', 'VisionFusion'])
+    # parser.add_argument('--mode', required=False, type=str, default='add',
+    #                     choices=['add', 'cat'])
     parser.add_argument('--seed', type=int, help='training seed', default=0)
     parser.add_argument('--epoch', type=int, help='training epoch', default=10)
     parser.add_argument('--batch_size', type=int, help='batch size', default=16)
@@ -40,7 +44,12 @@ def train(train_loader, model, opt, loss_fn):
             label = Variable(label, requires_grad=True)
 
             opt.zero_grad()
-            out = model(body_property, actions)
+            if args.model == 'VisionFusion':
+                initial_scenes.to(device)
+                initial_scenes = Variable(initial_scenes, requires_grad=True)
+                out = model(body_property, actions, initial_scenes)
+            else:
+                out = model(body_property, actions)
             pred = torch.argmax(out, dim=-1).float()
             batch_correct = (pred == label[:, 0]).cpu().detach().numpy() * 1
             correct += batch_correct.sum()
@@ -68,8 +77,11 @@ def eval(test_loader, model, loss_fn):
             correct_per_game[key] = [0, 0]
         for batch_idx, (game_names, initial_scenes, body_property, actions, label) in enumerate(test_loader):
             body_property, actions, label = body_property.to(device), actions.to(device), label.to(device)
-
-            out = model(body_property, actions)
+            if args.model == 'VisionFusion':
+                initial_scenes.to(device)
+                out = model(body_property, actions, initial_scenes)
+            else:
+                out = model(body_property, actions)
             pred = torch.argmax(out, dim=-1).float()
             batch_correct = (pred == label[:, 0]).cpu().detach().numpy() * 1
             correct += batch_correct.sum()
@@ -118,8 +130,15 @@ if __name__ == '__main__':
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=True, **kwargs)
 
     # model
-    # model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, obj_num=max_obj_num, mode='cat')
-    model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=max_obj_num, mode='add')
+    if args.model == 'GlobalFusion':
+        model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='cat')
+    elif args.model == 'ObjectFusion':
+        model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, mode='add')
+    elif args.model == 'VisionFusion':
+        model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='add')
+    else:
+        ValueError(f'No such model {args.model}')
+
     model.to(device)
 
     # optimization

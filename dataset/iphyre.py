@@ -36,6 +36,7 @@ class IPHYREData(Dataset):
         for game in self.split:
             self.game_names += [game] * self.action_num
             initial_scene = cv2.imread(self.game_data_path + game + f'/{game}.jpg')
+            initial_scene = cv2.resize(initial_scene, dsize=(224, 224)).transpose((2, 0, 1))
             self.initial_scenes.append([initial_scene] * self.action_num)
             body_property = np.load(self.game_data_path + game + '/vectors.npy')
             body_property[:, :5] /= 600

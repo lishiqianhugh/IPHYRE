@@ -1,15 +1,15 @@
 import torch
 import torch.nn as nn
+import timm
 
 
 class GlobalFusion(nn.Module):
-    def __init__(self, game_dim, action_dim, hidden_dim, obj_num, mode='add'):
+    def __init__(self, game_dim, action_dim, hidden_dim, mode='add'):
         super(GlobalFusion, self).__init__()
         assert mode in ['add', 'cat']
         self.game_dim = game_dim
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
-        self.obj_num = obj_num
         self.mode = mode
         self.game_encoder = nn.Sequential(
             nn.Linear(self.game_dim, self.hidden_dim),
@@ -39,13 +39,12 @@ class GlobalFusion(nn.Module):
 
 
 class ObjectFusion(nn.Module):
-    def __init__(self, game_dim, action_dim, hidden_dim, obj_num, mode='add'):
+    def __init__(self, game_dim, action_dim, hidden_dim, mode='add'):
         super(ObjectFusion, self).__init__()
         assert mode in ['add', 'cat']
         self.game_dim = game_dim
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
-        self.obj_num = obj_num
         self.mode = mode
         self.game_encoder = nn.Sequential(
             nn.Linear(self.game_dim, self.hidden_dim),
@@ -76,6 +75,44 @@ class ObjectFusion(nn.Module):
         else:
             x = torch.cat((x1, x2), -1)
         x = x.reshape(b, -1)
+        out = self.decision(x)
+        return out
+
+
+class VisionFusion(nn.Module):
+    def __init__(self, game_dim, action_dim, hidden_dim, mode='add'):
+        super(VisionFusion, self).__init__()
+        assert mode in ['add', 'cat']
+        self.game_dim = game_dim
+        self.action_dim = action_dim
+        self.hidden_dim = hidden_dim
+        self.mode = mode
+        self.image_encoder = timm.create_model('vit_base_patch16_224', pretrained=True)
+        self.image_encoder.head = nn.Linear(768, hidden_dim)
+        self.game_encoder = nn.Sequential(
+            nn.Linear(self.game_dim, self.hidden_dim),
+            nn.ReLU(),
+        )
+        self.action_encoder = nn.Sequential(
+            nn.Linear(self.action_dim, self.hidden_dim),
+            nn.ReLU(),
+        )
+        if self.mode == 'cat':
+            self.hidden_dim *= 3
+        self.decision = nn.Sequential(
+            nn.Linear(self.hidden_dim, 2),
+            nn.Softmax(dim=1)
+        )
+
+    def forward(self, game_data, action, image):
+        game_data = game_data.view(game_data.shape[0], -1)
+        x1 = self.game_encoder(game_data)
+        x2 = self.action_encoder(action)
+        visual_feature = self.image_encoder(image.cuda())
+        if self.mode == 'add':
+            x = x1 + x2 + 0.1 * visual_feature
+        else:
+            x = torch.cat((x1, x2, visual_feature), -1)
         out = self.decision(x)
         return out
 
