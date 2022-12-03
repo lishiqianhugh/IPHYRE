@@ -5,6 +5,7 @@ from torch.autograd import Variable
 from torch.nn.functional import one_hot
 import argparse
 import logging
+import optuna
 
 from dataset.iphyre import IPHYREData
 from agents.plan_ahead_models import *
@@ -14,6 +15,7 @@ from games.game_paras import max_eli_obj_num, max_obj_num
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='Plan Ahead Parameters')
+    parser.add_argument('--search', type=bool, help='whether searching hyperparameters', default=False)
     parser.add_argument('--fold', required=False, type=str, default='compositional',
                         choices=['basic', 'compositional', 'noisy', 'multi_ball'])
     parser.add_argument('--model', required=False, type=str, default='VisionFusion',
@@ -23,7 +25,9 @@ def arg_parse():
     parser.add_argument('--seed', type=int, help='training seed', default=0)
     parser.add_argument('--epoch', type=int, help='training epoch', default=10)
     parser.add_argument('--batch_size', type=int, help='batch size', default=16)
-    parser.add_argument('--lr', type=float, help='initial learning rate', default=0.01)
+    parser.add_argument('--alpha', type=float, help='weight of VF game paras', default=0.5053843079607675)
+    parser.add_argument('--beta', type=float, help='iweight of VF image', default=0.5132160195507073)
+    parser.add_argument('--lr', type=float, help='initial learning rate', default=0.0020040310212343974)
     parser.add_argument('--save_interval', type=int, help='save after how many epochs', default=1)
 
     return parser.parse_args()
@@ -32,7 +36,7 @@ def arg_parse():
 args = arg_parse()
 
 
-def train(train_loader, model, opt, loss_fn):
+def train(train_loader, model, opt, loss_fn, scheduler):
     model.train()
     for i in range(args.epoch):
         sum_loss = []
@@ -65,6 +69,7 @@ def train(train_loader, model, opt, loss_fn):
         info = f"epoch {i} loss : {mean_loss: .4f} acc: {mean_acc: .4f}"
         print(info)
         logging.info(info)
+    return mean_acc
 
 
 def eval(test_loader, model, loss_fn):
@@ -96,6 +101,33 @@ def eval(test_loader, model, loss_fn):
         info = f"test loss: {mean_loss:.4f} mean acc: {mean_acc:.4f}\ncorrect: {correct_per_game}"
         print(info)
         logging.info(info)
+    return mean_acc
+
+
+def objective(trial):
+    alpha = trial.suggest_float('alpha', 0.5, 1.)
+    beta = trial.suggest_float('beta', 0.5, 1.)
+    lr = trial.suggest_float('lr', 0.002, 0.004)
+    # model
+    if args.model == 'GlobalFusion':
+        model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='cat')
+    elif args.model == 'ObjectFusion':
+        model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=max_obj_num, mode='add')
+    elif args.model == 'VisionFusion':
+        model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, alpha=alpha, beta=beta, mode='add')
+    else:
+        ValueError(f'No such model {args.model}')
+
+    model.to(device)
+    # optimization
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epoch, eta_min=1e-6)
+    loss_fn = torch.nn.BCELoss()
+
+    train(train_loader, model, opt, loss_fn, scheduler)
+    eval_acc = eval(test_loader, model, loss_fn)
+
+    return eval_acc
 
 
 if __name__ == '__main__':
@@ -129,22 +161,28 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, **kwargs)
     test_loader = DataLoader(test_set, batch_size=args.batch_size, shuffle=True, **kwargs)
 
-    # model
-    if args.model == 'GlobalFusion':
-        model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='cat')
-    elif args.model == 'ObjectFusion':
-        model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, mode='add')
-    elif args.model == 'VisionFusion':
-        model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='add')
+    if args.search:
+        study = optuna.create_study(direction='maximize')
+        study.optimize(objective, n_trials=50)
+
+        print('best parmas:', study.best_trial.params,
+              '\n', 'best acc:', study.best_trial.values)
     else:
-        ValueError(f'No such model {args.model}')
+        # model
+        if args.model == 'GlobalFusion':
+            model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='cat')
+        elif args.model == 'ObjectFusion':
+            model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=max_obj_num, mode='add')
+        elif args.model == 'VisionFusion':
+            model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, alpha=args.alpha, beta=args.beta, mode='add')
+        else:
+            ValueError(f'No such model {args.model}')
 
-    model.to(device)
+        model.to(device)
+        # optimization
+        opt = torch.optim.Adam(model.parameters(), lr=args.lr)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epoch, eta_min=1e-6)
+        loss_fn = torch.nn.BCELoss()
 
-    # optimization
-    opt = torch.optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=args.epoch, eta_min=1e-6)
-    loss_fn = torch.nn.BCELoss()
-
-    train(train_loader, model, opt, loss_fn)
-    eval(test_loader, model, loss_fn)
+        train(train_loader, model, opt, loss_fn, scheduler)
+        eval_acc = eval(test_loader, model, loss_fn)

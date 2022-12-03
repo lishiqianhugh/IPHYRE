@@ -39,12 +39,13 @@ class GlobalFusion(nn.Module):
 
 
 class ObjectFusion(nn.Module):
-    def __init__(self, game_dim, action_dim, hidden_dim, mode='add'):
+    def __init__(self, game_dim, action_dim, hidden_dim, obj_num, mode='add'):
         super(ObjectFusion, self).__init__()
         assert mode in ['add', 'cat']
         self.game_dim = game_dim
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
+        self.obj_num = obj_num
         self.mode = mode
         self.game_encoder = nn.Sequential(
             nn.Linear(self.game_dim, self.hidden_dim),
@@ -80,12 +81,14 @@ class ObjectFusion(nn.Module):
 
 
 class VisionFusion(nn.Module):
-    def __init__(self, game_dim, action_dim, hidden_dim, mode='add'):
+    def __init__(self, game_dim, action_dim, hidden_dim, alpha, beta, mode='add'):
         super(VisionFusion, self).__init__()
         assert mode in ['add', 'cat']
         self.game_dim = game_dim
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
+        self.alpha = alpha
+        self.beta = beta
         self.mode = mode
         self.image_encoder = timm.create_model('vit_base_patch16_224', pretrained=True)
         self.image_encoder.head = nn.Linear(768, hidden_dim)
@@ -106,11 +109,11 @@ class VisionFusion(nn.Module):
 
     def forward(self, game_data, action, image):
         game_data = game_data.view(game_data.shape[0], -1)
-        x1 = self.game_encoder(game_data)
-        x2 = self.action_encoder(action)
+        x1 = self.action_encoder(action)
+        x2 = self.game_encoder(game_data)
         visual_feature = self.image_encoder(image.cuda())
         if self.mode == 'add':
-            x = x1 + x2 + 0.1 * visual_feature
+            x = x1 + self.alpha * x2 + self.beta * visual_feature
         else:
             x = torch.cat((x1, x2, visual_feature), -1)
         out = self.decision(x)
