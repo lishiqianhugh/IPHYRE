@@ -253,7 +253,7 @@ class IPHYRE():
         pygame.display.flip()
         time.sleep(2)
 
-    def collect_while_play(self, save_path='../dataset/data_player/', fps=2):
+    def collect_while_play(self, save_path='./dataset/data_player/', fps=2):
         self.add_all()
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
@@ -330,9 +330,8 @@ class IPHYRE():
                 self.space.debug_draw(self.draw_options)
                 pygame.display.flip()
 
-    def collect_data(self, save_path='../dataset/game_data/', act_lists=None, fps=2):  # maximum fps=60
+    def collect_data(self, save_path='./dataset/offline_data/', act_lists=None, fps=10, obj_num=max_obj_num):  # maximum fps=60
         # actions is a list of actions
-        self.add_all()
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
             os.makedirs(game_path)
@@ -342,26 +341,26 @@ class IPHYRE():
                'dynamic': np.array(self.dynamic)}
         np.save(game_path + 'raw.npy', dic)
         for i, act_list in enumerate(act_lists):  # the step number of each action can be variant
+            self.reset()
             eli_mask = np.arange(len(self.space.bodies))
             data_path = game_path + f'{i}/'
             if not os.path.exists(data_path):
                 img_path = data_path + 'images/'
                 os.makedirs(img_path)
-                act_pos = np.array([list(a[0]) for a in act_list])
-                act_ts = np.array([a[1] for a in act_list])
+                act_pos = np.array([list(a[0:-1]) for a in act_list])
+                act_ts = np.array([a[-1] for a in act_list])
                 np.save(data_path + 'actions.npy', np.concatenate((act_pos, act_ts.reshape(-1, 1)), axis=-1))
             else:
                 continue  # already get the action_data stored
-            step, time_count = 0, 0.
+            step, time_count, save_count = 0, 0., 0
             total_step = len(act_list)
             interval = self.FPS / fps
             interval_cal = 0
-            vectors = [[]] * len(self.space.bodies)
+            vectors = np.zeros((self.max_time * fps, obj_num, 9))
 
             while time_count < self.max_time:
-                self.screen.fill((255, 255, 255))
                 if step < total_step:
-                    p, t = act_list[step][0], act_list[step][1]
+                    p, t = act_list[step][0:-1], act_list[step][-1]
                     if time_count >= t:
                         index = self.eliminate(p)
                         if index != -1:
@@ -371,28 +370,19 @@ class IPHYRE():
                             for body in self.space.bodies:
                                 print(body.position)
 
-                self.space.step(self.timestep)
                 if interval_cal == interval or interval_cal == 0:
                     interval_cal = 0
-                    print(f'{round(time_count, 1)}: eli_mask:{eli_mask}')
                     for i, body in enumerate(self.space.bodies):
                         index = eli_mask[i]
                         property = self.get_property(body, i, self.shape[i])
-                        if self.joint:
-                            if index in self.joint:
-                                property[-2] = 1
-                        if self.spring:
-                            if index in self.spring:
-                                property[-1] = 1
-                        vectors[index].append(property)
-                    for j in range(len(vectors)):
-                        if j not in eli_mask:
-                            vectors[j].append([0] * len(vectors[0][0]))
-                    print(f'number of bodies:{len(self.space.bodies)}')
+                        vectors[save_count][index] = property
                     self.space.debug_draw(self.draw_options)
                     pygame.display.flip()
-                    pygame.image.save(self.screen, img_path + f'{round(time_count, 1)}.jpg')
+                    pygame.image.save(self.screen, img_path + f'{save_count}.jpg')
+                    save_count += 1
 
+                self.screen.fill((255, 255, 255))
+                self.space.step(self.timestep)
                 interval_cal += 1
                 time_count += self.timestep
                 if self.examine_success():
@@ -404,7 +394,7 @@ class IPHYRE():
 
             np.save(data_path + 'vectors.npy', np.array(vectors))
 
-    def collect_initial_data(self, save_path='../dataset/game_initial_data/', obj_num=max_obj_num):
+    def collect_initial_data(self, save_path='./dataset/game_initial_data/', obj_num=max_obj_num):
         self.add_all()
         self.screen.fill((255, 255, 255))
         game_path = save_path + f'{self.game}/'
@@ -511,6 +501,12 @@ class IPHYRE():
         self.screen.blit(text, loc)
 
     def run(self, act_list=None):
+        def return_center(p):
+            x = (p[0][0] + p[1][0]) / 2
+            y = (p[0][1] + p[1][1]) / 2
+            return [x, y]
+        def time_order(a):
+            return a[-1]
         act_lists = []
         if act_list is None:
             act_list = self.solutions[self.game]
@@ -522,6 +518,16 @@ class IPHYRE():
         elif self.mode == 'simulate_vis':
             self.simulate_vis(act_list)
         elif self.mode == 'collect_data':
+            succeed_actions = np.load(f'dataset/action_data_7s/' + self.game + f'/succeed_actions_50.npy')
+            fail_actions = np.load(f'dataset/action_data_7s/' + self.game + f'/fail_actions_50.npy')
+            actions = np.concatenate((succeed_actions[:, :-3], fail_actions[:, :-3]))
+            eli_idx = np.where(np.array(self.eli) == 1)
+            eli_blocks = np.array(self.blocks)[eli_idx]
+            act_lists = []
+            for act_time in actions:
+                act = [return_center(eli_blocks[i]) + [t] for i, t in enumerate(act_time) if t != 0]
+                act.sort(key=time_order)
+                act_lists.append(act)
             self.collect_data(act_lists=act_lists)
         elif self.mode == 'collect_initial_data':
             self.collect_initial_data()
@@ -536,5 +542,6 @@ class IPHYRE():
 
 if __name__ == '__main__':
     g, m = sys.argv[1], sys.argv[2]
+    # g, m = 'angle', 'collect_data'
     demo = IPHYRE(g, m)
     demo.run()

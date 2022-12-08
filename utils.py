@@ -1,4 +1,6 @@
 import os
+import tempfile
+import shutil
 
 import numpy as np
 import random
@@ -70,9 +72,22 @@ def print_generated_actions(dataset_path='dataset/action_data/'):
         print(game)
         print(fail_data)
 
+def jpg2gif(path='dataset\offline_data'):
+    for game in os.listdir(path):
+        for i in range(100):
+            os.system(f'ffmpeg -i {path}/{game}/{i}/images/%d.jpg -vf "split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" {path}/{game}/{i}/{game}.{i}.gif')
+
+
+def check(path='dataset\offline_data'):
+    for game in os.listdir(path):
+        for i in range(100):
+            if not os.path.exists(f'{path}/{game}/{i}'):
+                print(game, i)
 
 if __name__ == '__main__':
     # draw_bbox('../dataset/game_initial_data/spring_flick/spring_flick.jpg',
     #           '../dataset/game_initial_data/spring_flick/vectors.npy')
     # reorganize_images()
-    print_generated_actions()
+    # print_generated_actions()
+    jpg2gif()
+    # check()

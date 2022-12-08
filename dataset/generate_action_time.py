@@ -73,7 +73,7 @@ if __name__ == '__main__':
                                                 num_fail=num_fail,
                                                 interval=0.1,
                                                 max_game_time=15.,
-                                                max_action_time=10.,
+                                                max_action_time=7.,
                                                 max_step=6)
             print(f'\nsucceed_list: {slist}')
             print(f'fail_list: {flist}\n')
