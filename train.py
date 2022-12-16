@@ -8,7 +8,7 @@ import logging
 import optuna
 
 from dataset.iphyre import IPHYREData
-from agents.plan_ahead_models import *
+from agents.plan_ahead.fusion_models import *
 from utils import setup_seed
 from games.game_paras import max_eli_obj_num, max_obj_num
 
@@ -41,11 +41,11 @@ def train(train_loader, model, opt, loss_fn, scheduler):
     for i in range(args.epoch):
         sum_loss = []
         correct = 0
-        for batch_idx, (_, initial_scenes, body_property, actions, label) in enumerate(train_loader):
-            body_property, actions, label = body_property.to(device), actions.to(device), label.to(device)
+        for batch_idx, (_, initial_scenes, body_property, actions, labels) in enumerate(train_loader):
+            body_property, actions, labels = body_property.to(device), actions.to(device), labels.to(device)
             body_property = Variable(body_property, requires_grad=True)
             actions = Variable(actions, requires_grad=True)
-            label = Variable(label, requires_grad=True)
+            labels = Variable(labels, requires_grad=True)
 
             opt.zero_grad()
             if args.model == 'VisionFusion':
@@ -55,10 +55,10 @@ def train(train_loader, model, opt, loss_fn, scheduler):
             else:
                 out = model(body_property, actions)
             pred = torch.argmax(out, dim=-1).float()
-            batch_correct = (pred == label[:, 0]).cpu().detach().numpy() * 1
+            batch_correct = (pred == labels[:, 0]).cpu().detach().numpy() * 1
             correct += batch_correct.sum()
-            label_one_hot = one_hot(label[:, 0].to(torch.int64), 2).float().to(device)
-            loss = loss_fn(out, label_one_hot)
+            labels_one_hot = one_hot(labels[:, 0].to(torch.int64), 2).float().to(device)
+            loss = loss_fn(out, labels_one_hot)
             loss.backward()
             opt.step()
             scheduler.step()
@@ -80,20 +80,20 @@ def eval(test_loader, model, loss_fn):
         correct_per_game = {}
         for key in test_set.game_names:
             correct_per_game[key] = [0, 0]
-        for batch_idx, (game_names, initial_scenes, body_property, actions, label) in enumerate(test_loader):
-            body_property, actions, label = body_property.to(device), actions.to(device), label.to(device)
+        for batch_idx, (game_names, initial_scenes, body_property, actions, labels) in enumerate(test_loader):
+            body_property, actions, labels = body_property.to(device), actions.to(device), labels.to(device)
             if args.model == 'VisionFusion':
                 initial_scenes.to(device)
                 out = model(body_property, actions, initial_scenes)
             else:
                 out = model(body_property, actions)
             pred = torch.argmax(out, dim=-1).float()
-            batch_correct = (pred == label[:, 0]).cpu().detach().numpy() * 1
+            batch_correct = (pred == labels[:, 0]).cpu().detach().numpy() * 1
             correct += batch_correct.sum()
-            label_one_hot = one_hot(label[:, 0].to(torch.int64), 2).float().to(device)
-            loss = loss_fn(out, label_one_hot)
+            labels_one_hot = one_hot(labels[:, 0].to(torch.int64), 2).float().to(device)
+            loss = loss_fn(out, labels_one_hot)
             sum_loss.append(loss.cpu().detach().numpy())
-            for game, corr, lab in zip(game_names, batch_correct, label[:, 0]):
+            for game, corr, lab in zip(game_names, batch_correct, labels[:, 0]):
                 correct_per_game[game][lab.int()] += corr
 
         mean_loss = np.mean(sum_loss)
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     # logging
     LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
     DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
-    logging.basicConfig(filename=f'exp.log', level=20, format=LOG_FORMAT, datefmt=DATE_FORMAT)
+    logging.basicConfig(filename=f'logs/exp.log', level=20, format=LOG_FORMAT, datefmt=DATE_FORMAT)
     logging.info(f'Fold: {args.fold} Seed: {args.seed}')
 
     setup_seed(args.seed)

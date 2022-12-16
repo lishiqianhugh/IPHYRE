@@ -8,10 +8,12 @@ import pymunk.matplotlib_util
 import numpy as np
 import os
 from copy import deepcopy
+import sys
+sys.path.append('D:\Files\Research\Projects\Interactive_Physical_Reasoning\IPHYRE')
 
-from game_paras import game_paras
-from game_paras import max_obj_num
-from solutions import sol
+from games.game_paras import game_paras
+from games.game_paras import max_obj_num, max_eli_obj_num
+from games.solutions import sol
 import pdb
 
 
@@ -47,9 +49,11 @@ class IPHYRE():
         self.property = []
         self.num_ball = len(self.balls)
         self.eli = deepcopy(game_paras[self.game]['eli'])
+        self.eli_mask = None
         self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
         self.num_obj = len(self.eli)
         self.max_obj_num = max_obj_num
+        self.max_eli_obj_num = max_eli_obj_num
 
         self.joint = None
         if 'joint' in game_paras[self.game].keys():
@@ -150,6 +154,7 @@ class IPHYRE():
                 for constraint in list(shape.body.constraints):
                     self.space.remove(constraint)
                 self.eli.pop(i)
+                self.eli_mask.pop(i)
                 self.dynamic.pop(i)
                 self.shape.pop(i)
                 return i
@@ -166,7 +171,7 @@ class IPHYRE():
             return False
 
     def play(self):
-        self.add_all()
+        self.reset()
         finish_game, exceed_time, start = False, False, False
         time_count = 0
         while time_count < self.max_time + self.timestep:
@@ -226,7 +231,7 @@ class IPHYRE():
         return 0, step, time_count
 
     def simulate_vis(self, action=None):
-        self.add_all()
+        self.reset()
         step, time_count = 0, 0
         total_step = len(action)
         while time_count < self.max_time:
@@ -254,7 +259,7 @@ class IPHYRE():
         time.sleep(2)
 
     def collect_while_play(self, save_path='./dataset/data_player/', fps=2):
-        self.add_all()
+        self.reset()
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
             os.makedirs(game_path)
@@ -266,7 +271,6 @@ class IPHYRE():
         finish_game, exceed_time, start = False, False, False
         time_count = 0
 
-        eli_mask = np.arange(len(self.space.bodies))
         interval = 1 / fps
         actions = []
         while time_count < self.max_time + self.timestep:
@@ -288,11 +292,9 @@ class IPHYRE():
                         time_count = 0
                         finish_game, exceed_time, start = False, False, False
                         actions = []
-                        eli_mask = np.arange(len(self.space.bodies))
                     if not finish_game and start:
                         index = self.eliminate(p)
                         if index != -1:
-                            eli_mask = np.delete(eli_mask, index)
                             actions.append(np.array(list(p) + [time_count]))
 
             if start:
@@ -330,7 +332,7 @@ class IPHYRE():
                 self.space.debug_draw(self.draw_options)
                 pygame.display.flip()
 
-    def collect_data(self, save_path='./dataset/offline_data/', act_lists=None, fps=10, obj_num=max_obj_num):  # maximum fps=60
+    def collect_data(self, save_path='./dataset/offline_data/', act_lists=None, fps=10):  # maximum fps=60
         # actions is a list of actions
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
@@ -342,7 +344,6 @@ class IPHYRE():
         np.save(game_path + 'raw.npy', dic)
         for i, act_list in enumerate(act_lists):  # the step number of each action can be variant
             self.reset()
-            eli_mask = np.arange(len(self.space.bodies))
             data_path = game_path + f'{i}/'
             if not os.path.exists(data_path):
                 img_path = data_path + 'images/'
@@ -356,7 +357,7 @@ class IPHYRE():
             total_step = len(act_list)
             interval = self.FPS / fps
             interval_cal = 0
-            vectors = np.zeros((self.max_time * fps, obj_num, 9))
+            vectors = np.zeros((self.max_time * fps, self.max_obj_num, 9))
 
             while time_count < self.max_time:
                 if step < total_step:
@@ -366,16 +367,12 @@ class IPHYRE():
                         if index != -1:
                             print(f'Step {step}: Click {p} at time {time_count}.')
                             step += 1
-                            eli_mask = np.delete(eli_mask, index)
                             for body in self.space.bodies:
                                 print(body.position)
 
                 if interval_cal == interval or interval_cal == 0:
                     interval_cal = 0
-                    for i, body in enumerate(self.space.bodies):
-                        index = eli_mask[i]
-                        property = self.get_property(body, i, self.shape[i])
-                        vectors[save_count][index] = property
+                    vectors[save_count] = self.get_all_property()
                     self.space.debug_draw(self.draw_options)
                     pygame.display.flip()
                     pygame.image.save(self.screen, img_path + f'{save_count}.jpg')
@@ -394,8 +391,8 @@ class IPHYRE():
 
             np.save(data_path + 'vectors.npy', np.array(vectors))
 
-    def collect_initial_data(self, save_path='./dataset/game_initial_data/', obj_num=max_obj_num):
-        self.add_all()
+    def collect_initial_data(self, save_path='./dataset/game_initial_data/'):
+        self.reset()
         self.screen.fill((255, 255, 255))
         game_path = save_path + f'{self.game}/'
         if not os.path.exists(game_path):
@@ -405,12 +402,7 @@ class IPHYRE():
                'eli': np.array(self.eli),
                'dynamic': np.array(self.dynamic)}
         np.save(game_path + 'raw.npy', dic)
-        vectors = []
-        for i, body in enumerate(self.space.bodies):
-            property = self.get_property(body, i, self.shape[i])
-            vectors.append(property)
-        vectors += [[0] * len(vectors[0])] * (obj_num - len(vectors))
-        vectors = np.array(vectors)
+        vectors = self.get_all_property()
         np.save(game_path + 'vectors.npy', vectors)
 
         self.space.debug_draw(self.draw_options)
@@ -444,6 +436,26 @@ class IPHYRE():
             if idx in sum(game_paras[self.game]['spring'], []):
                 prop[-1] = 1
         return prop
+    
+    def get_all_property(self):
+        all_property = np.zeros((self.max_obj_num, 9))
+        for i, body in enumerate(self.space.bodies):
+            index = self.eli_mask[i]
+            all_property[index] = self.get_property(body, i, self.shape[i])
+        return all_property
+
+    def get_action_space(self):
+        self.reset()
+        actions = [[0., 0.]]  # no action
+        all_property = self.get_all_property()
+        for property in all_property:
+            if property[-4] == 1:
+                x = (property[0] + property[2]) / 2
+                y = (property[1] + property[3]) / 2
+                actions.append([x, y])
+        for _ in range(self.max_eli_obj_num + 1 - len(actions)):
+            actions.append([0., 0.])
+        return actions
 
     def reset(self):
         for body in self.space.bodies:
@@ -456,7 +468,28 @@ class IPHYRE():
         self.add_all()
         self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
         self.eli = deepcopy(game_paras[self.game]['eli'])
+        self.eli_mask = [i for i in range(len(self.space.bodies))]
         self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
+
+        return self.get_all_property()
+
+    def step(self, pos, time_step):
+        self.timestep = time_step
+        reward = -1
+        done = False
+        if pos == [0., 0.]:
+            self.space.step(self.timestep)
+        else:
+            index = self.eliminate(pos)
+            self.space.step(self.timestep)
+            if index != -1:
+                reward += -10
+
+        if self.examine_success():
+            reward += 1000
+            done = True
+        
+        return self.get_all_property(), reward, done
 
     def button_process(self):
         mousePos = pygame.mouse.get_pos()
@@ -541,7 +574,7 @@ class IPHYRE():
 
 
 if __name__ == '__main__':
-    g, m = sys.argv[1], sys.argv[2]
-    # g, m = 'angle', 'collect_data'
+    # g, m = sys.argv[1], sys.argv[2]
+    g, m = 'angle', 'play'
     demo = IPHYRE(g, m)
     demo.run()
