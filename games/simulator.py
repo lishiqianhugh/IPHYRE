@@ -483,10 +483,10 @@ class IPHYRE():
             index = self.eliminate(pos)
             self.space.step(self.timestep)
             if index != -1:
-                reward += -10
+                reward += -100
 
         if self.examine_success():
-            reward += 1000
+            reward += 500
             done = True
         
         return self.get_all_property(), reward, done

@@ -1,6 +1,7 @@
 import os
 import tempfile
 import shutil
+import csv
 
 import numpy as np
 import random
@@ -84,10 +85,36 @@ def check(path='dataset\offline_data'):
             if not os.path.exists(f'{path}/{game}/{i}'):
                 print(game, i)
 
+def write_csv(path, contents):
+    with open(path, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(contents)
+
+def read_csv(path):
+    with open(path, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        contents = []
+        for line in reader:
+            contents.append(line)
+    return contents
+
+def avg_reward_from_csv(path):
+    FOLD_LIST = ['basic', 'compositional', 'noisy', 'multi_ball']
+    for i, fold in enumerate(FOLD_LIST):
+        rewards = read_csv(path)[1][i * 10: (i + 1) * 10]
+        int_rewards = [int(r) for r in rewards]
+        avg_rewards = sum(int_rewards) / 10
+        print(fold, avg_rewards)
+
 if __name__ == '__main__':
     # draw_bbox('../dataset/game_initial_data/spring_flick/spring_flick.jpg',
     #           '../dataset/game_initial_data/spring_flick/vectors.npy')
     # reorganize_images()
     # print_generated_actions()
-    jpg2gif()
+    # jpg2gif()
     # check()
+    # write_csv(path='./test.csv', contents=[[1,2], [3,4]])
+    # contents = read_csv(path='./test.csv')
+    # print(contents)
+    avg_reward_from_csv(path='logs/DQN_single_10_rewards.csv')
+
