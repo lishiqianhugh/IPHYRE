@@ -116,5 +116,6 @@ if __name__ == '__main__':
     # write_csv(path='./test.csv', contents=[[1,2], [3,4]])
     # contents = read_csv(path='./test.csv')
     # print(contents)
-    avg_reward_from_csv(path='logs/DQN_single_10_rewards.csv')
+    # avg_reward_from_csv(path='logs\plan_in_situ\Random_rewards.csv')
+    avg_reward_from_csv(path='logs\plan_in_situ\DQN_single_1000_0.9_0.01_rewards.csv')
 

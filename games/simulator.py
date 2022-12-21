@@ -15,6 +15,7 @@ from games.game_paras import game_paras
 from games.game_paras import max_obj_num, max_eli_obj_num
 from games.solutions import sol
 import pdb
+import cv2
 
 
 class IPHYRE():
@@ -457,7 +458,8 @@ class IPHYRE():
             actions.append([0., 0.])
         return actions
 
-    def reset(self):
+    def reset(self, use_images=False):
+        # print(use_images)
         for body in self.space.bodies:
             shape = list(body.shapes)[0]
             self.space.remove(shape, shape.body)
@@ -471,9 +473,19 @@ class IPHYRE():
         self.eli_mask = [i for i in range(len(self.space.bodies))]
         self.dynamic = deepcopy(game_paras[self.game]['dynamic'])
 
-        return self.get_all_property()
+        if use_images:
+            self.space.debug_draw(self.draw_options)
+            pygame.display.flip()
+            image = pygame.surfarray.array3d(self.screen)
+            image = image.swapaxes(0,1)
+            image[:,:,[0,2]] = image[:,:,[2,0]]
+            # cv2.imshow('img', image)
+            # cv2.waitKey(1000)
+            return image
+        else:
+            return self.get_all_property()
 
-    def step(self, pos, time_step):
+    def step(self, pos, time_step, use_images=False):
         self.timestep = time_step
         reward = -1
         done = False
@@ -489,8 +501,17 @@ class IPHYRE():
             reward += 500
             done = True
         
-        return self.get_all_property(), reward, done
-
+        if use_images:
+            self.screen.fill((255, 255, 255))
+            self.space.debug_draw(self.draw_options)
+            pygame.display.flip()
+            image = pygame.surfarray.array3d(self.screen)
+            image = image.swapaxes(0,1)
+            image[:,:,[0,2]] = image[:,:,[2,0]]
+            return image, reward, done
+        else:
+            return self.get_all_property(), reward, done
+        
     def button_process(self):
         mousePos = pygame.mouse.get_pos()
         self.button.buttonSurface.fill(self.button.fillColors['normal'])

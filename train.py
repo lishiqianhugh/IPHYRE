@@ -165,7 +165,7 @@ if __name__ == '__main__':
         study = optuna.create_study(direction='maximize')
         study.optimize(objective, n_trials=50)
 
-        print('best parmas:', study.best_trial.params,
+        print('best params:', study.best_trial.params,
               '\n', 'best acc:', study.best_trial.values)
     else:
         # model
