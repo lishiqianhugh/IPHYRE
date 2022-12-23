@@ -13,7 +13,9 @@ import logging
 import argparse
 import optuna
 from config.DQN_config import BaseConfig as DQNConfig
+from config.A2C_config import BaseConfig as A2CConfig
 from agents.plan_in_situ.DQN import *
+from agents.plan_in_situ.a2c import *
 import os
 import pdb
 SEED = 0
@@ -24,7 +26,7 @@ def arg_parse():
     parser.add_argument('--mode', required=False, type=str, default='single',
                         choices=['single', 'within', 'cross'])
     parser.add_argument('--seed', type=int, help='training seed', default=0)
-    parser.add_argument('--model', type=str, help='model name', default='DQN')
+    parser.add_argument('--model', type=str, help='model name', default='A2C')
 
     return parser.parse_args()
 
@@ -95,6 +97,8 @@ if __name__ == '__main__':
     all_test_rewards = []
     if(args.model == 'DQN'):
         config = DQNConfig()
+    if(args.model == 'A2C'):
+        config = A2CConfig()
     FOLD_LIST = ['basic', 'compositional', 'noisy', 'multi_ball']
     for FOLD in FOLD_LIST:
         FOLD_ID = FOLD_LIST.index(FOLD)
