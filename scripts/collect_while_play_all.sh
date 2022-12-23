@@ -1,4 +1,4 @@
-for game in support hinder direction hole fill seesaw angle impulse pendulum spring support_hinder support_direction support_hole more_step_hole hinder_fill impulse_spring impulse_pendulum activated_pendulum spring_flick seesaw_angle noisy_support noisy_hinder noisy_direction noisy_hole noisy_fill noisy_seesaw noisy_angle noisy_impulse noisy_pendulum noisy_spring stack multi_ball_hinder redirect multi_ball_hole multi_ball_fill lever multi_ball_angle multi_ball_pendulum multi_ball_spring multi_balls_spring_flick
+for game in support hinder direction hole fill seesaw angle impulse pendulum spring support_hinder support_direction support_hole more_step_hole hinder_fill impulse_spring impulse_pendulum activated_pendulum spring_flick seesaw_angle noisy_support noisy_hinder noisy_direction noisy_hole noisy_fill noisy_seesaw noisy_angle noisy_impulse noisy_pendulum noisy_spring stack multi_ball_hinder redirect multi_ball_hole multi_ball_fill lever multi_ball_angle multi_ball_pendulum multi_ball_spring multi_ball_spring_flick
 do
   python games/simulator.py $game collect_while_play
 done

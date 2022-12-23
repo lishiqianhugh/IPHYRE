@@ -2,6 +2,8 @@ import os
 import tempfile
 import shutil
 import csv
+import seaborn as sns
+import pandas as pd
 
 import numpy as np
 import random
@@ -106,6 +108,41 @@ def avg_reward_from_csv(path):
         avg_rewards = sum(int_rewards) / 10
         print(fold, avg_rewards)
 
+def analyze_games_to_csv(path='./analysis.csv'):
+    FOLD_LIST = ['basic', 'compositional', 'noisy', 'multi_ball']
+    contents = [['Game', 'Fold', 'Body Type', 'Num']]
+    for FOLD in FOLD_LIST:
+        FOLD_ID = FOLD_LIST.index(FOLD)
+        GAMES = list(game_paras.keys())
+        NUM_GAMES = len(GAMES)
+        NUM_PER_GROUP = int(NUM_GAMES / len(FOLD_LIST))
+        SPLIT = GAMES[FOLD_ID * NUM_PER_GROUP: (FOLD_ID + 1) * NUM_PER_GROUP]
+        for game in SPLIT:
+            num_blocks = len(game_paras[game]['block'])
+            num_eli_blocks = sum(game_paras[game]['eli'])
+            num_balls = len(game_paras[game]['ball'])
+            contents.append([game, FOLD.capitalize(), 'Blocks', num_blocks])
+            contents.append([game, FOLD.capitalize(), 'Gray Blocks', num_eli_blocks])
+            contents.append([game, FOLD.capitalize(), 'Balls', num_balls])
+    write_csv(path, contents)
+
+def draw_barplot(csv_path='./analysis.csv', save_path='./analysis.pdf'):
+    contents = pd.read_csv(csv_path)
+    sns.set_theme(style="whitegrid")
+    sns.set(font_scale=1.5)
+    g = sns.catplot(
+        data=contents, kind="bar",
+        x="Fold", y="Num", hue="Body Type",
+        errorbar="sd", palette="dark", alpha=.6, height=6
+    )
+    g.despine(left=True)
+    g.set_axis_labels("", "Number")
+    g.legend.set_title("Body Type")
+    g.figure.set_size_inches(12, 6)
+    sns.move_legend(g, "upper center", ncol=3, title=None)
+    g.savefig(save_path, dpi=600, bbox_inches='tight', pad_inches=0)
+
+
 if __name__ == '__main__':
     # draw_bbox('../dataset/game_initial_data/spring_flick/spring_flick.jpg',
     #           '../dataset/game_initial_data/spring_flick/vectors.npy')
@@ -117,5 +154,7 @@ if __name__ == '__main__':
     # contents = read_csv(path='./test.csv')
     # print(contents)
     # avg_reward_from_csv(path='logs\plan_in_situ\Random_rewards.csv')
-    avg_reward_from_csv(path='logs\plan_in_situ\DQN_single_1000_0.9_0.01_rewards.csv')
+    # avg_reward_from_csv(path='logs\plan_in_situ\DQN_single_False_1000_0.9_0.01_rewards.csv')
+    # analyze_games_to_csv()
+    draw_barplot()
 
