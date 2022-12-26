@@ -10,7 +10,7 @@ from games.simulator import IPHYRE
 from games.game_paras import game_paras
 import time
 import logging
-from main import *
+from main_situ import *
 import pdb
 
 class Net(nn.Module):
