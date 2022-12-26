@@ -81,9 +81,9 @@ class DQN(object):
         self.loss_func = nn.MSELoss()
 
     def choose_action(self, states, actions, train):
-        states = torch.unsqueeze(torch.FloatTensor(states), 0).to(device)
+        states = torch.unsqueeze(torch.FloatTensor(states), 0).to(self.device)
         actions = torch.unsqueeze(torch.FloatTensor(
-            actions).reshape(-1), 0).to(device)
+            actions).reshape(-1), 0).to(self.device)
         if train == False or (train and np.random.uniform() < self.epsilon):
             actions_value = self.eval_net.forward(states, actions)
             action = torch.max(actions_value, 1)[1].cpu().detach().numpy()

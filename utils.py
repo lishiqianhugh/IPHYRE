@@ -4,6 +4,7 @@ import shutil
 import csv
 import seaborn as sns
 import pandas as pd
+import json
 
 import numpy as np
 import random
@@ -87,13 +88,24 @@ def check(path='dataset\offline_data'):
             if not os.path.exists(f'{path}/{game}/{i}'):
                 print(game, i)
 
-def write_csv(path, contents):
-    with open(path, 'a', newline='') as csvfile:
+def write_json(path, contents, mode='a'):
+    with open(path, mode) as file:
+        file.writelines(json.dumps(contents)+'\n')
+
+def read_json(path, mode='r'):
+    with open(path, mode) as file:
+        contents = []
+        for line in file:
+            contents.append[json.loads(line)]
+    return contents
+
+def write_csv(path, contents, mode='a'):
+    with open(path, mode, newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(contents)
 
-def read_csv(path):
-    with open(path, 'r') as csvfile:
+def read_csv(path, mode='r'):
+    with open(path, mode) as csvfile:
         reader = csv.reader(csvfile)
         contents = []
         for line in reader:
