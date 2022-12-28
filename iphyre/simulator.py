@@ -362,7 +362,7 @@ class IPHYRE():
         pygame.display.flip()
         pygame.image.save(self.screen, game_path + f'{self.game}.jpg')
     
-    def collect_data(self, save_path='./offline_data/', act_lists=[], fps=10):  # maximum fps=60
+    def collect_seq_data(self, save_path='./offline_data/', act_lists=[], fps=10):  # maximum fps=60
         '''
         The act_lists consists of some actions. 
         Each action consists of tuples (x, y, t), indicating click position (x, y) at time t.
