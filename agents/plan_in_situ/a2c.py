@@ -1,6 +1,3 @@
-
-import math
-import random
 import numpy as np
 import torch
 import torch.nn as nn
@@ -10,11 +7,9 @@ from torch.distributions import Categorical
 import timm
 import matplotlib.pyplot as plt
 from copy import deepcopy
-from games.simulator import IPHYRE
-from games.game_paras import game_paras
+from iphyre.simulator import IPHYRE
 import time
-import logging
-from main_situ import *
+from train_online_RL import *
 import pdb
 import cv2
 
@@ -203,16 +198,8 @@ class A2C(nn.Module):
                 loss.backward()
                 self.optimizer.step()
 
-            
-
-
 
 def plot(frame_idx, rewards):
     plt.plot(rewards,'b-')
     plt.title('frame %s. reward: %s' % (frame_idx, rewards[-1]))
     plt.pause(0.0001)
-
-
-
-
-

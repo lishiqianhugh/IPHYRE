@@ -10,7 +10,7 @@
     3. the number of blocks equals to the number of eli and the number of dynamic.
 '''
 
-game_paras = {
+PARAS = {
     # Basic 10
     'support':
         {'block': [[[200., 400.], [300., 400.]],
@@ -612,16 +612,15 @@ game_paras = {
     #      },
 }
 
-print(f'There are {len(game_paras)} games.')
-max_obj_num = 0
-max_eli_obj_num = 0
-for key in game_paras.keys():
-    print(key, end=' ')
-    obj_num = len(game_paras[key]['eli'])
-    if obj_num > max_obj_num:
-        max_obj_num = obj_num
-    eli_obj_num = sum(game_paras[key]['eli'])
-    if eli_obj_num > max_eli_obj_num:
-        max_eli_obj_num = eli_obj_num
-print(f'\nThe max obj num is {max_obj_num}.')
-print(f'The max eliminable obj num is {max_eli_obj_num}.')
+FOLD_LIST = ['basic', 'compositional', 'noisy', 'multi_ball']
+GAMES = list(PARAS.keys())
+
+MAX_OBJ_NUM = 0
+MAX_ELI_OBJ_NUM = 0
+for key in PARAS.keys():
+    obj_num = len(PARAS[key]['eli'])
+    if obj_num > MAX_OBJ_NUM:
+        MAX_OBJ_NUM = obj_num
+    eli_obj_num = sum(PARAS[key]['eli'])
+    if eli_obj_num > MAX_ELI_OBJ_NUM:
+        MAX_ELI_OBJ_NUM = eli_obj_num

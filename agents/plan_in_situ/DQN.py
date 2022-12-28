@@ -1,4 +1,3 @@
-import sys
 from copy import deepcopy
 import numpy as np
 import torch.nn.functional as F
@@ -6,11 +5,10 @@ import torch.nn as nn
 import torch
 import timm
 import cv2
-from games.simulator import IPHYRE
-from games.game_paras import game_paras
+from iphyre.simulator import IPHYRE
 import time
 import logging
-from main_situ import *
+from train_online_RL import *
 import pdb
 
 class Net(nn.Module):

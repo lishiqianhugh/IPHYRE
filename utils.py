@@ -11,7 +11,7 @@ import random
 import torch
 import matplotlib.pyplot as plt
 import cv2
-from games.game_paras import game_paras
+from iphyre.games import PARAS
 
 
 def plot_trajectory(traj_x, traj_y):
@@ -55,7 +55,7 @@ def reorganize_images(generated_dir='dataset/game_initial_data/',
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     for i, fold in enumerate(fold_list):
-        for game in list(game_paras.keys())[i * 10: (i + 1) * 10]:
+        for game in list(PARAS.keys())[i * 10: (i + 1) * 10]:
             save_path = save_dir + f'{fold}_{game}.jpg'
             im_path = generated_dir + f'{game}/' + f'{game}.jpg'
             image = cv2.imread(im_path)
@@ -64,13 +64,13 @@ def reorganize_images(generated_dir='dataset/game_initial_data/',
 
 def print_generated_actions(dataset_path='dataset/action_data/'):
     print('##################### succeed #####################')
-    for game in game_paras.keys():
+    for game in PARAS.keys():
         succeed_path = dataset_path + f'{game}/succeed_actions_50.npy'
         succeed_data = np.load(succeed_path)
         print(game)
         print(succeed_data)
     print('##################### fail #####################')
-    for game in game_paras.keys():
+    for game in PARAS.keys():
         fail_path = dataset_path + f'{game}/fail_actions_50.npy'
         fail_data = np.load(fail_path)
         print(game)
@@ -125,14 +125,14 @@ def analyze_games_to_csv(path='./analysis.csv'):
     contents = [['Game', 'Fold', 'Body Type', 'Num']]
     for FOLD in FOLD_LIST:
         FOLD_ID = FOLD_LIST.index(FOLD)
-        GAMES = list(game_paras.keys())
+        GAMES = list(PARAS.keys())
         NUM_GAMES = len(GAMES)
         NUM_PER_GROUP = int(NUM_GAMES / len(FOLD_LIST))
         SPLIT = GAMES[FOLD_ID * NUM_PER_GROUP: (FOLD_ID + 1) * NUM_PER_GROUP]
         for game in SPLIT:
-            num_blocks = len(game_paras[game]['block'])
-            num_eli_blocks = sum(game_paras[game]['eli'])
-            num_balls = len(game_paras[game]['ball'])
+            num_blocks = len(PARAS[game]['block'])
+            num_eli_blocks = sum(PARAS[game]['eli'])
+            num_balls = len(PARAS[game]['ball'])
             contents.append([game, FOLD.capitalize(), 'Blocks', num_blocks])
             contents.append([game, FOLD.capitalize(), 'Gray Blocks', num_eli_blocks])
             contents.append([game, FOLD.capitalize(), 'Balls', num_balls])
@@ -161,12 +161,12 @@ if __name__ == '__main__':
     # reorganize_images()
     # print_generated_actions()
     # jpg2gif()
-    # check()
+    check()
     # write_csv(path='./test.csv', contents=[[1,2], [3,4]])
     # contents = read_csv(path='./test.csv')
     # print(contents)
     # avg_reward_from_csv(path='logs\plan_in_situ\Random_rewards.csv')
     # avg_reward_from_csv(path='logs\plan_in_situ\DQN_single_False_1000_0.9_0.01_rewards.csv')
     # analyze_games_to_csv()
-    draw_barplot()
+    # draw_barplot()
 

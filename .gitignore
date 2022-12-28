@@ -4,12 +4,7 @@
 
 # Project files
 examples
-action_data*
-action_data
-game_initial_data
-game_initial_data_large
-offline_data
-data_player
+data
 logs
 
 # User-specific stuff

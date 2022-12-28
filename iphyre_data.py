@@ -1,10 +1,8 @@
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import cv2
-import sys
-sys.path.append('D:\Files\Research\Projects\Interactive_Physical_Reasoning\IPHYRE')
 
-from games.game_paras import game_paras
+from iphyre.games import PARAS
 from utils import setup_seed
 
 
@@ -19,12 +17,12 @@ class IPHYREData(Dataset):
         self.fold_list = ['basic', 'compositional', 'noisy', 'multi_ball']
         assert self.fold in self.fold_list
         self.fold_id = self.fold_list.index(self.fold)
-        self.num_games = len(game_paras)
+        self.num_games = len(PARAS)
         self.num_per_group = int(self.num_games / len(self.fold_list))
-        self.test_split = list(game_paras.keys())[self.fold_id * self.num_per_group:
+        self.test_split = list(PARAS.keys())[self.fold_id * self.num_per_group:
                                                   (self.fold_id + 1) * self.num_per_group]
-        self.train_split = list(game_paras.keys())[:self.fold_id * self.num_per_group] \
-                           + list(game_paras.keys())[(self.fold_id + 1) * self.num_per_group:]
+        self.train_split = list(PARAS.keys())[:self.fold_id * self.num_per_group] \
+                           + list(PARAS.keys())[(self.fold_id + 1) * self.num_per_group:]
         if train:
             self.split = self.train_split
         else:
@@ -84,12 +82,12 @@ class IPHYRESeqData(Dataset):
         self.fold_list = ['basic', 'compositional', 'noisy', 'multi_ball']
         assert self.fold in self.fold_list
         self.fold_id = self.fold_list.index(self.fold)
-        self.num_games = len(game_paras)
+        self.num_games = len(PARAS)
         self.num_per_group = int(self.num_games / len(self.fold_list))
-        self.test_split = list(game_paras.keys())[self.fold_id * self.num_per_group:
+        self.test_split = list(PARAS.keys())[self.fold_id * self.num_per_group:
                                                   (self.fold_id + 1) * self.num_per_group]
-        self.train_split = list(game_paras.keys())[:self.fold_id * self.num_per_group] \
-                           + list(game_paras.keys())[(self.fold_id + 1) * self.num_per_group:]
+        self.train_split = list(PARAS.keys())[:self.fold_id * self.num_per_group] \
+                           + list(PARAS.keys())[(self.fold_id + 1) * self.num_per_group:]
         if train:
             self.split = self.train_split
         else:
@@ -177,7 +175,7 @@ if __name__ == '__main__':
     #     break
 
     setup_seed(0)
-    train_set = IPHYRESeqData(data_path='dataset/offline_data/', num_succeed=50, num_fail=50, fold='compositional')
+    train_set = IPHYRESeqData(data_path='data/offline_data/', num_succeed=50, num_fail=50, fold='compositional')
     kwargs = {'pin_memory': True, 'num_workers': 0}
     train_loader = DataLoader(train_set, batch_size=16, shuffle=True, **kwargs)
     for game_names, initial_scenes, body_property, actions, returns_to_go, time_steps, body_num in train_loader:

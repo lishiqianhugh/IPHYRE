@@ -7,10 +7,10 @@ import argparse
 import logging
 import optuna
 
-from dataset.iphyre import IPHYREData
+from iphyre_data import IPHYREData
 from agents.plan_ahead.fusion_models import *
 from utils import setup_seed
-from games.game_paras import max_eli_obj_num, max_obj_num
+from iphyre.games import MAX_OBJ_NUM
 
 
 def arg_parse():
@@ -112,7 +112,7 @@ def objective(trial):
     if args.model == 'GlobalFusion':
         model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='cat')
     elif args.model == 'ObjectFusion':
-        model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=max_obj_num, mode='add')
+        model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=MAX_OBJ_NUM, mode='add')
     elif args.model == 'VisionFusion':
         model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, alpha=alpha, beta=beta, mode='add')
     else:
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         if args.model == 'GlobalFusion':
             model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='cat')
         elif args.model == 'ObjectFusion':
-            model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=max_obj_num, mode='add')
+            model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=MAX_OBJ_NUM, mode='add')
         elif args.model == 'VisionFusion':
             model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, alpha=args.alpha, beta=args.beta, mode='add')
         else:

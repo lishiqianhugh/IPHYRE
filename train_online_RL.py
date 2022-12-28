@@ -1,24 +1,17 @@
-from copy import deepcopy
-import numpy as np
 import torch.nn.functional as F
-import torch.nn as nn
 import torch
-import timm
-import cv2
-from games.simulator import IPHYRE
-from games.game_paras import game_paras
+from iphyre.games import GAMES
 from utils import setup_seed, write_csv
-import time
 import logging
 import argparse
 import optuna
-from config.DQN_config import BaseConfig as DQNConfig
-from config.A2C_config import BaseConfig as A2CConfig
+from agents.config.DQN_config import BaseConfig as DQNConfig
+from agents.config.A2C_config import BaseConfig as A2CConfig
 from agents.plan_in_situ.DQN import *
-from agents.plan_in_situ.a2c import *
+from agents.plan_in_situ.A2C import *
 import os
 import pdb
-SEED = 0
+
 
 def arg_parse():
     parser = argparse.ArgumentParser(description='Plan situ Parameters')
@@ -44,7 +37,6 @@ def run(config):
     FOLD_LIST = ['basic', 'compositional', 'noisy', 'multi_ball']
     for FOLD in FOLD_LIST:
         FOLD_ID = FOLD_LIST.index(FOLD)
-        GAMES = list(game_paras.keys())
         NUM_GAMES = len(GAMES)
         NUM_PER_GROUP = int(NUM_GAMES / len(FOLD_LIST))
         TEST_SPLIT = GAMES[FOLD_ID * NUM_PER_GROUP: (FOLD_ID + 1) * NUM_PER_GROUP]
@@ -93,7 +85,7 @@ logging.basicConfig(filename=f'logs/plan_in_situ/{args.model}_{args.mode}.log', 
 logging.info(args)
 
 if __name__ == '__main__':
-    setup_seed(SEED)
+    setup_seed(args.seed)
     all_test_rewards = []
     if(args.model == 'DQN'):
         config = DQNConfig()
@@ -102,16 +94,15 @@ if __name__ == '__main__':
     FOLD_LIST = ['basic', 'compositional', 'noisy', 'multi_ball']
     for FOLD in FOLD_LIST:
         FOLD_ID = FOLD_LIST.index(FOLD)
-        GAMES = list(game_paras.keys())
         NUM_GAMES = len(GAMES)
         NUM_PER_GROUP = int(NUM_GAMES / len(FOLD_LIST))
         TEST_SPLIT = GAMES[FOLD_ID * NUM_PER_GROUP: (FOLD_ID + 1) * NUM_PER_GROUP]
         TRAIN_SPLIT = GAMES[:FOLD_ID * NUM_PER_GROUP] + GAMES[(FOLD_ID + 1) * NUM_PER_GROUP:]
 
-        logging.info(f'Fold: {FOLD}, Seed: {SEED}')
+        logging.info(f'Fold: {FOLD}, Seed: {args.seed}')
     if args.search == False:
         all_test_rewards = run(config)
-        write_csv(path=f'logs/plan_in_situ/{args.model}_{args.mode}_{args.use_images}_{args.epoch}_{args.gamma}_{args.lr}_rewards.csv', contents=[list(game_paras.keys()), all_test_rewards])
+        write_csv(path=f'logs/plan_in_situ/{args.model}_{args.mode}_{args.use_images}_{args.epoch}_{args.gamma}_{args.lr}_rewards.csv', contents=[GAMES, all_test_rewards])
     else:
         study = optuna.create_study(direction='maximize')
         study.optimize(objective, n_trials=50)

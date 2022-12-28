@@ -1,11 +1,8 @@
 import sys
 sys.path.append('D:\Files\Research\Projects\Interactive_Physical_Reasoning\IPHYRE')
 import numpy as np
-import torch.nn.functional as F
-import torch.nn as nn
-import torch
-from games.simulator import IPHYRE
-from games.game_paras import game_paras
+from iphyre.simulator import IPHYRE
+from iphyre.games import PARAS
 from utils import setup_seed, write_csv
 import time
 import logging
@@ -69,7 +66,7 @@ if __name__ == '__main__':
     FOLD_LIST = ['basic', 'compositional', 'noisy', 'multi_ball']
     for FOLD in FOLD_LIST:
         FOLD_ID = FOLD_LIST.index(FOLD)
-        GAMES = list(game_paras.keys())
+        GAMES = list(PARAS.keys())
         NUM_GAMES = len(GAMES)
         NUM_PER_GROUP = int(NUM_GAMES / len(FOLD_LIST))
         TEST_SPLIT = GAMES[FOLD_ID * NUM_PER_GROUP: (FOLD_ID + 1) * NUM_PER_GROUP]
@@ -79,5 +76,5 @@ if __name__ == '__main__':
         random_agent = RandomAgent(N_ACTIONS)
         test_rewards = test(random_agent, TEST_SPLIT)
         all_test_rewards += test_rewards
-    write_csv(path=f'logs/plan_in_situ/Random_rewards.csv', contents=[list(game_paras.keys()), all_test_rewards])
+    write_csv(path=f'logs/plan_in_situ/Random_rewards.csv', contents=[list(PARAS.keys()), all_test_rewards])
         

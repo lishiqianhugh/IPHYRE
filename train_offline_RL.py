@@ -6,7 +6,7 @@ import argparse
 import logging
 import optuna
 
-from dataset.iphyre import IPHYRESeqData
+from iphyre_data import IPHYRESeqData
 from agents.plan_in_situ.offline_RL.decision_transformer import DecisionTransformer
 from utils import setup_seed
 

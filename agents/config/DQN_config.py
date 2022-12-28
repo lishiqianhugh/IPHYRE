@@ -1,4 +1,3 @@
-
 class BaseConfig(object):
     def __init__(self):
         self.n_states = 12 * 9
