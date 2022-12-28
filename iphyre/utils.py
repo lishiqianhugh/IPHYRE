@@ -63,7 +63,7 @@ def collect_initial_all(save_path='./dataset/game_initial_data/'):
         demo = IPHYRE(game)
         demo.collect_initial_data(save_path=save_path)
 
-def collect_all(action_path='dataset/action_data_7s/'):
+def collect_seq_all(action_path='dataset/action_data_7s/'):
     def return_center(p):
         x = (p[0][0] + p[1][0]) / 2
         y = (p[0][1] + p[1][1]) / 2
@@ -82,7 +82,7 @@ def collect_all(action_path='dataset/action_data_7s/'):
             act.sort(key=time_order)
             act_lists.append(act)
         demo = IPHYRE(game)
-        demo.collect_data(act_lists=act_lists)
+        demo.collect_seq_data(act_lists=act_lists)
 
 def collect_play_all(player_name, max_episode, save_path):
     for game in GAMES:
