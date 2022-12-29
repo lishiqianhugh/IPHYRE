@@ -19,10 +19,10 @@ This is a project to explore **I**nteractive **PHY**sical **RE**asoning.
       <img src='https://img.shields.io/badge/Pymunk-github-red?style=plastic&logo=Google%20chrome&logoColor=red' alt='Pymunk'>
     </a>
 </p>
-<img src='images/gifs/hole.0.gif' width="100">
-<img src='images/gifs/fill.0.gif' width="100">
-<img src='images/gifs/seesaw.0.gif' width="100">
-<img src='images/gifs/angle.0.gif' width="100">
+
+<div align="center">
+<img src='images/gifs/hole.0.gif' width="200"><img src='images/gifs/fill.0.gif' width="200"><img src='images/gifs/seesaw.0.gif' width="200"><img src='images/gifs/angle.0.gif' width="200">
+</div>
 
 ## Getting started
 Run the command below to set the environment and install the packages required in this project.
