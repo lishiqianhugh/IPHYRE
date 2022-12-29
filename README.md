@@ -21,7 +21,7 @@ This is a project to explore **I**nteractive **PHY**sical **RE**asoning.
 </p>
 
 <div align="center">
-<img style="border:2px solid black" src='images/gifs/hole.0.gif' width="200"><img style="border:2px solid black" src='images/gifs/fill.0.gif' width="200"><img style="border:2px solid black" src='images/gifs/seesaw.0.gif' width="200"><img style="border:2px solid black" src='images/gifs/angle.0.gif' width="200">
+<kbd><img src='images/gifs/hole.0.gif' width="200"></kbd><kbd><img src='images/gifs/fill.0.gif' width="200"></kbd><kbd><img src='images/gifs/seesaw.0.gif' width="200"></kbd><kbd><img src='images/gifs/angle.0.gif' width="200"></kbd>
 </div>
 
 ## Getting started
