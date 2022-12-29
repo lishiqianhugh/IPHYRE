@@ -19,7 +19,10 @@ This is a project to explore **I**nteractive **PHY**sical **RE**asoning.
       <img src='https://img.shields.io/badge/Pymunk-github-red?style=plastic&logo=Google%20chrome&logoColor=red' alt='Pymunk'>
     </a>
 </p>
-
+<img src='images/gifs/hole.0.gif' width="100">
+<img src='images/gifs/fill.0.gif' width="100">
+<img src='images/gifs/seesaw.0.gif' width="100">
+<img src='images/gifs/angle.0.gif' width="100">
 
 ## Getting started
 Run the command below to set the environment and install the packages required in this project.
@@ -30,8 +33,11 @@ pip install numpy pygame pymunk
 pip install iphyre
 ```
 
+## Package
+We build the `iphyre` package to promote research on interactive physical reasoning. Follow [this instruction](./package/README.md) to call its APIs.
+
 ## Games
-Different games are set in the file `iphyre/games.py`, which contains the vertices of the blocks and positions and radiuses of the balls. See the following structure as an example:
+See the game list [here](https://lishiqianhugh.github.io/IPHYRE/). The parameters of different games are set in `iphyre.games`, which contains the vertices of the blocks and the central positions of the balls with radiuses. See the following structure for example:
 ```angular2html
 '''
 block: [[x1, y1],[x2, y2]] with a radius of 10
@@ -63,5 +69,3 @@ game_paras = {'support':
                    },
               }
 ```
-See the game list [here](https://lishiqianhugh.github.io/IPHYRE/).
-
