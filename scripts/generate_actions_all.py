@@ -1,8 +1,6 @@
 import numpy as np
 import os
 import logging
-import sys
-sys.path.append('D:\Files\Research\Projects\Interactive_Physical_Reasoning\IPHYRE')
  
 from iphyre.utils import generate_actions
 from iphyre.games import GAMES, MAX_ELI_OBJ_NUM

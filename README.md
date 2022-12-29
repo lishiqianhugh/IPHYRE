@@ -22,15 +22,12 @@ This is a project to explore **I**nteractive **PHY**sical **RE**asoning.
 
 
 ## Getting started
-Run the command below to install all the packages required in this project.
+Run the command below to set the environment and install the packages required in this project.
 ```
-pip install -r requirements.txt
-```
-
-How to get `requirements.txt`:
-```angular2html
-pip install pipreqs
-pipreqs .
+conda create -n iphyre python=3.10
+conda activate iphyre
+pip install numpy pygame pymunk
+pip install iphyre
 ```
 
 ## Games
