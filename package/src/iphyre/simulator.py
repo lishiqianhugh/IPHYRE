@@ -253,34 +253,42 @@ class IPHYRE():
             return self.get_all_property(), reward, done
 
     def simulate(self, action=[]):
-        step, time_count = 0, 0
+        '''
+        The action consists of many tuples (x, y, t), indicating clicking position (x, y) at time t.
+        '''
+        action.sort(key=lambda a: a[-1])
+        step, valid_step, time_count = 0, 0, 0
         total_step = len(action)
         while time_count < self.max_time:
             if step < total_step:
                 p, t = action[step][0:2], action[step][2]
                 if time_count >= t:
-                    if self.eliminate(p) != -1:
-                        step += 1
+                    if t != 0:
+                        if self.eliminate(p) != -1:
+                            valid_step += 1
+                    step += 1
 
             self.space.step(self.timestep)
             time_count += self.timestep
             if self.examine_success():
-                return 1, step, time_count
-        return 0, step, time_count
+                return 1, valid_step, time_count
+        return 0, valid_step, time_count
 
     def simulate_vis(self, action=[]):
         self.init_screen()
         self.reset()
-        step, time_count = 0, 0
+        action.sort(key=lambda a: a[-1])
+        step, valid_step, time_count = 0, 0, 0
         total_step = len(action)
         while time_count < self.max_time:
             self.screen.fill((255, 255, 255))
             if step < total_step:
                 p, t = action[step][0: 2], action[step][2]
                 if time_count >= t:
-                    if self.eliminate(p) != -1:
-                        print(f'Step {step}: Click {p} at time {time_count}.')
-                        step += 1
+                    if t != 0:
+                        if self.eliminate(p) != -1:
+                            print(f'Step {step}: Click {p} at time {time_count}.')
+                    step += 1
 
             self.space.step(self.timestep)
             time_count += self.timestep
@@ -365,7 +373,7 @@ class IPHYRE():
     def collect_seq_data(self, save_path='./offline_data/', act_lists=[], fps=10):  # maximum fps=60
         '''
         The act_lists consists of some actions. 
-        Each action consists of tuples (x, y, t), indicating click position (x, y) at time t.
+        Each action consists of many tuples (x, y, t), indicating clicking position (x, y) at time t.
         '''
         self.init_screen()
         game_path = save_path + f'{self.game}/'
@@ -377,6 +385,7 @@ class IPHYRE():
                'dynamic': np.array(self.dynamic)}
         np.save(game_path + 'raw.npy', dic)
         for i, act_list in enumerate(act_lists):  # the step number of each action can be variant
+            act_list.sort(key=lambda a: a[-1])
             self.reset()
             data_path = game_path + f'{i}/'
             if not os.path.exists(data_path):
@@ -395,11 +404,11 @@ class IPHYRE():
 
             while time_count < self.max_time:
                 if step < total_step:
-                    p, t = act_list[step][0:-1], act_list[step][-1]
+                    p, t = act_list[step][0:2], act_list[step][2]
                     if time_count >= t:
-                        index = self.eliminate(p)
-                        if index != -1:
-                            step += 1
+                        if t != 0:
+                            self.eliminate(p)
+                        step += 1
 
                 if interval_cal == interval or interval_cal == 0:
                     interval_cal = 0
