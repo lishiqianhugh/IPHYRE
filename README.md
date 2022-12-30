@@ -25,7 +25,7 @@ This is a project to explore **I**nteractive **PHY**sical **RE**asoning.
 </div>
 
 ## Getting started
-Run the command below to set the environment and install the packages required in this project.
+Run the commands below to set the environment and install the packages required in this project.
 ```
 conda create -n iphyre python=3.10
 conda activate iphyre
@@ -34,7 +34,79 @@ pip install iphyre
 ```
 
 ## Package
-We build the `iphyre` package to promote research on interactive physical reasoning. Follow [this instruction](./package/README.md) to call its APIs.
+We build the `iphyre` package to promote research on interactive physical reasoning.
+
+The following shows how to define and play a game:
+```
+from iphyre.simulator import IPHYRE
+
+env = IPHYRE(game='hole')
+env.play()
+```
+
+If you are running a RL agent, you may want to obtain the intermediate states like this:
+```
+from iphyre.simulator import IPHYRE
+
+max_iter = 150
+model = DQN()  # define your own model
+env = IPHYRE(game='hole')
+s = env.reset()
+while iter < max_iter:
+    # get the action (clicking coordinate [x, y]) based on the current state
+    a = model.get_action(s)
+    # get next state by executing action a; set use_image=True if using visual state.
+    s_, r, done = env.step(a)
+    s = s_
+```
+
+If you want to generate some successful and failed actions and collect some offline data, you can call the corresponding APIs like this:
+```
+from iphyre.games import MAX_ELI_OBJ_NUM
+from iphyre.utils import generate_actions
+from iphyre.simulator import IPHYRE
+
+succeed_list, fail_list, _ = generate_actions(game='hole',
+                                              num_succeed=1,
+                                              num_fail=1,
+                                              interval=0.1,
+                                              max_game_time=15.,
+                                              max_action_time=7.,
+                                              max_step=MAX_ELI_OBJ_NUM,
+                                              seed=0)
+
+env = IPHYRE(game='hole')
+
+# save the initial data and image
+env.collect_initial_data(save_path='./game_initial_data/')
+
+# build executable action list
+positions = env.get_action_space()
+act_lists = []
+for a in succeed_list + fail_list:
+    act_lists.append([positions[i + 1] + [a[i]] for i in range(MAX_ELI_OBJ_NUM)])
+
+# save the sequential data and images
+env.collect_seq_data(save_path='./game_seq_data/', act_lists=act_lists)
+```
+
+## API
+Some useful APIs are provided in iphyre.
+* **iphyre.games.GAMES:** Get the names of all the games.
+* **iphyre.games.PARAS:** Get the design parameters of all the games.
+* **iphyre.simulator.reset():** Reset the bodyies in the game and return the initial state.
+* **iphyre.simulator.step():** Apply an action and forward a timestep. Return the next state, reward and done.
+* **iphyre.simulator.simulate():** Simulate the game with the specified actions and only return the final results without a UI.
+* **iphyre.simulator.simulate_vis():** Simulate the game with the specified actions and display in a UI.
+* **iphyre.simulator.play():** Play the game in a UI with mouse clicks to eliminate blocks.
+* **iphyre.simulator.collect_initial_data():** Save images and body properties of only initial states without a UI.
+* **iphyre.simulator.collect_seq_data():** Save raw data, actions and body properties of the dynamic state sequence without a UI.
+* **iphyre.simulator.collect_while_play():** Save player's actions and rewards after playing with a UI.
+* **iphyre.simulator.get_action_space():** Get the central positions of the eliminable blocks with no action at the first place and the padding place.
+* **iphyre.utils.generate_actions():** Random generate successful and failed actions of specifc numbers in one game.
+* **iphyre.utils.play_all():** play all the games.
+* **iphyre.utils.collect_initial_all():** Save images and body properties of initial states in all the games.
+* **iphyre.utils.collect_play_all():** Play and save player's actions and rewards in all the games.
 
 ## Games
 See the game list [here](https://lishiqianhugh.github.io/IPHYRE/). The parameters of different games are set in `iphyre.games`, which contains the vertices of the blocks and the central positions of the balls with radiuses. See the following structure for example:
