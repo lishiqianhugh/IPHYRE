@@ -126,7 +126,7 @@ class A2C(nn.Module):
         done = False
         total_reward = 0
         iter = 0
-        while not done or iter < self.max_iter:
+        while (not done) and iter < self.max_iter:
             iter+=1
             state = torch.FloatTensor(state).reshape(1,-1).to(self.device)
             dist, _ = self._forward(state,input_actions)
@@ -164,7 +164,7 @@ class A2C(nn.Module):
                     dist, value = self._forward(state,input_actions)
                     a = dist.sample()
                     pos = actions[a]
-                    next_state, reward, done = env.step(pos, time_step=self.game_time / self.max_iter, use_images=self.use_images)
+                    next_state, reward, done = env.step(pos,use_images=self.use_images)
                     if(done):
                         next_state = env.reset(self.use_images)
                     log_prob = dist.log_prob(a)
@@ -183,6 +183,9 @@ class A2C(nn.Module):
 
                     if frame_idx % 100 == 0:
                         test_rewards.append(np.mean([self.test(env) for _ in range(10)]))
+                        info = f'Testing Game: {game} | Frame idx: {frame_idx} | Reward: {test_rewards[-1]}'
+                        print(info)
+                        logging.info(info)
                         
                 next_state = torch.FloatTensor(next_state).reshape(1,-1).to(self.device)
                 _, next_value = self._forward(next_state,input_actions)

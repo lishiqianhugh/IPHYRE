@@ -11,7 +11,7 @@ class BaseConfig(object):
         self.hidden_dim = 256
         self.actor_lr = 1e-4
         self.critic_lr = 1e-3
-        self.episode = 100000
+        self.episode = 10000#10000
         self.max_iter = 150
         self.game_time = 15.
 

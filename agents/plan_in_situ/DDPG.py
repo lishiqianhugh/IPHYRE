@@ -202,6 +202,43 @@ class DDPG:
        
         for target_param, param in zip(self.critic_target.parameters(), self.critic.parameters()):
             target_param.data.copy_(param.data * self.tau + target_param.data * (1.0 - self.tau))
+    
+    def test(self,games):
+        all_rewards = []
+        for game in games:
+            env = IPHYRE(game=game)
+            state = env.reset(self.use_images)
+            action_length = len(game_paras[game]['eli'])
+            if self.use_images:
+                    state = cv2.resize(state, dsize=(224, 224)).transpose((2, 0, 1))
+            else:
+                state[:, :5] /= 600
+            actions = env.get_action_space()
+            input_actions = (torch.FloatTensor((deepcopy(actions))) / 600)
+            input_actions = input_actions.reshape(1,-1).to(self.device)
+            done = False
+            total_reward = 0
+            iter = 0
+            state = env.reset()
+            noise = OUNoise(self.device,self.n_actions)
+            noise.reset()
+            state = torch.FloatTensor(state).reshape(1,-1).to(self.device)
+            mask = torch.arange(0,self.n_actions) < action_length
+            action_times = self.actor(state,input_actions)
+            action_times = noise.get_action(action_times)* mask
+            iter = 0
+            time_step = self.game_time / self.max_iter
+            for time in np.arange(0,self.game_time,time_step):
+                if done: break
+                if action_times[0][iter]!=0 and action_times[0][iter]*self.game_time >= time:
+                    iter+=1
+                    pos = actions[iter]
+                else:
+                    pos = [0., 0.]
+                next_state, reward, done = env.step(pos,use_images=self.use_images)
+                total_reward += reward
+            all_rewards.append(total_reward)
+        return all_rewards
 
     def train(self,train_split):
         for game in train_split:
@@ -219,7 +256,7 @@ class DDPG:
             noise = OUNoise(self.device,self.n_actions)
             rewards = []
             avg_rewards = []
-
+            test_rewards = []
             for episode in range(self.episode):
                 state = env.reset()
                 noise.reset()
@@ -230,7 +267,9 @@ class DDPG:
                 action_times = noise.get_action(action_times)* mask
                 iter = 0
                 time_step = self.game_time / self.max_iter
+                done = False
                 for time in np.arange(0,self.game_time,time_step):
+                    if done: break
                     if action_times[0][iter]!=0 and action_times[0][iter]*self.game_time >= time:
                         iter+=1
                         pos = actions[iter]
@@ -246,3 +285,10 @@ class DDPG:
                 
                 rewards.append(reward)
                 avg_rewards.append(np.mean(rewards[-10:]))
+                if episode % 100 == 0:
+                        test_rewards.append(np.mean([self.test([game])[0] for _ in range(10)]))
+                        info = f'Testing Game: {game} | Frame idx: {frame_idx} | Reward: {test_rewards[-1]}'
+                        print(info)
+                        logging.info(info)
+                if test_rewards[-1]<np.mean(test_rewards):
+                    break
