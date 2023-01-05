@@ -1,61 +1,165 @@
+<style>
+    .home {
+        background-color: #ffffff;
+        text-align: center;
+        font-size: 50;
+        color: #000000;
+    }
+    
+    .title {
+    	background-color: #b3b3b3;
+        text-align: center;
+        font-size: 30;
+        color: #ffffff;
+    }
+    .intro {
+
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 20px 300px 20px 300px;
+   }
+    .main {
+        font-size: 20;
+    }
+    .other {
+    	background-color: #8a8a8a;
+        text-align: center;
+        font-size: 20;
+        color: #ffffff;
+    }
+    .container {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 10px 80px;
+   }
+    .box {
+        position: relative;
+        width: 320px;
+        background: #fff;
+        font-size: 15;
+        padding: 20px 40px 60px;
+        box-shadow: 0 15px 45px rgba(0,0,0,.1);
+    }
+</style>
+
 <html>
 <body>
 
-<h1 align="center">Interactive Physical Reasoning</h1>
-
-<div>There are 40 different block elimination tasks of 4 folds (Basic, Compositional, Noisy and Multi_ball).
-    The goal is to make the red balls drop into the abyss by eliminating some blocks.
-    The gray and black blocks are static, and the blue blocks are dynamic.
-    Only the gray blocks can be eliminated.
+<div class="home">
+<img src="./page.png" width="1400">
+<div>Interactive Physical Reasoning</div>
+<a style="font-size:20; color:#00bfff;" href="https://github.com/lishiqianhugh/IPHYRE">Project</a> <a style="font-size:20; color:#FF0000;" href="https://github.com/lishiqianhugh/IPHYRE">Paper</a>
 </div>
 
-<h2 align="center">Basic Games</h2>
-<img src="images/basic_angle.jpg" title="basic_angle" width="600" height="600" border="2">
-<img src="images/basic_direction.jpg" title="basic_direction" width="600" height="600" border="2">
-<img src="images/basic_fill.jpg" title="basic_fill" width="600" height="600" border="2">
-<img src="images/basic_hinder.jpg" title="basic_hinder" width="600" height="600" border="2">
-<img src="images/basic_hole.jpg" title="basic_hole" width="600" height="600" border="2">
-<img src="images/basic_impulse.jpg" title="basic_impulse" width="600" height="600" border="2">
-<img src="images/basic_pendulum.jpg" title="basic_pendulum" width="600" height="600" border="2">
-<img src="images/basic_seesaw.jpg" title="basic_seesaw" width="600" height="600" border="2">
-<img src="images/basic_spring.jpg" title="basic_spring" width="600" height="600" border="2">
-<img src="images/basic_support.jpg" title="basic_support" width="600" height="600" border="2">
 
-<h2 align="center">Compositional Games</h2>
-<img src="images/compositional_activated_pendulum.jpg" title="compositional_activated_pendulum" width="600" height="600" border="2">
-<img src="images/compositional_hinder_fill.jpg" title="compositional_hinder_fill" width="600" height="600" border="2">
-<img src="images/compositional_impulse_pendulum.jpg" title="compositional_impulse_pendulum" width="600" height="600" border="2">
-<img src="images/compositional_impulse_spring.jpg" title="compositional_impulse_spring" width="600" height="600" border="2">
-<img src="images/compositional_more_step_hole.jpg" title="compositional_more_step_hole" width="600" height="600" border="2">
-<img src="images/compositional_seesaw_angle.jpg" title="compositional_seesaw_angle" width="600" height="600" border="2">
-<img src="images/compositional_spring_flick.jpg" title="compositional_spring_flick" width="600" height="600" border="2">
-<img src="images/compositional_support_direction.jpg" title="compositional_support_direction" width="600" height="600" border="2">
-<img src="images/compositional_support_hinder.jpg" title="compositional_support_hinder" width="600" height="600" border="2">
-<img src="images/compositional_support_hole.jpg" title="compositional_support_hole" width="600" height="600" border="2">
+<div class="title">
+    Introduction
+</div>
 
-<h2 align="center">Noisy Games</h2>
-<img src="images/noisy_noisy_angle.jpg" title="noisy_noisy_angle" width="600" height="600" border="2">
-<img src="images/noisy_noisy_direction.jpg" title="noisy_noisy_direction" width="600" height="600" border="2">
-<img src="images/noisy_noisy_fill.jpg" title="noisy_noisy_fill" width="600" height="600" border="2">
-<img src="images/noisy_noisy_hinder.jpg" title="noisy_noisy_hinder" width="600" height="600" border="2">
-<img src="images/noisy_noisy_hole.jpg" title="noisy_noisy_hole" width="600" height="600" border="2">
-<img src="images/noisy_noisy_impulse.jpg" title="noisy_noisy_impulse" width="600" height="600" border="2">
-<img src="images/noisy_noisy_pendulum.jpg" title="noisy_noisy_pendulum" width="600" height="600" border="2">
-<img src="images/noisy_noisy_seesaw.jpg" title="noisy_noisy_seesaw" width="600" height="600" border="2">
-<img src="images/noisy_noisy_spring.jpg" title="noisy_noisy_spring" width="600" height="600" border="2">
-<img src="images/noisy_noisy_support.jpg" title="noisy_noisy_support" width="600" height="600" border="2">
+<div class="intro">
+    <div class="main">
+        There are 40 different block elimination tasks of 4 folds (Basic, Compositional, Noisy and Multi_ball).
+        The goal is to make the <font color="#FF0000">red</font> balls drop into the abyss by eliminating some blocks.
+        The <font color="#8a8a8a">gray</font> and <b>black</b> blocks are static, and the <font color="#00c8ff">blue</font> blocks are dynamic.
+        Only the gray blocks can be eliminated.
+    </div>
+</div>
 
-<h2 align="center">Multi_ball Games</h2>
-<img src="images/multi_ball_lever.jpg" title="multi_ball_lever" width="600" height="600" border="2">
-<img src="images/multi_ball_multi_ball_angle.jpg" title="multi_ball_multi_ball_angle" width="600" height="600" border="2">
-<img src="images/multi_ball_multi_ball_fill.jpg" title="multi_ball_multi_ball_fill" width="600" height="600" border="2">
-<img src="images/multi_ball_multi_ball_hinder.jpg" title="multi_ball_multi_ball_hinder" width="600" height="600" border="2">
-<img src="images/multi_ball_multi_ball_hole.jpg" title="multi_ball_multi_ball_hole" width="600" height="600" border="2">
-<img src="images/multi_ball_multi_ball_pendulum.jpg" title="multi_ball_multi_ball_pendulum" width="600" height="600" border="2">
-<img src="images/multi_ball_multi_ball_spring.jpg" title="multi_ball_multi_ball_spring" width="600" height="600" border="2">
-<img src="images/multi_ball_multi_balls_spring_flick.jpg" title="multi_ball_multi_balls_spring_flick" width="600" height="600" border="2">
-<img src="images/multi_ball_redirect.jpg" title="multi_ball_redirect" width="600" height="600" border="2">
-<img src="images/multi_ball_stack.jpg" title="multi_ball_stack" width="600" height="600" border="2">
+<div class="title">
+    Play
+</div>
+
+<div class="container">
+    <div class="box">
+    <h2>Step 1</h2>
+    <h2>Set the environment</h2>
+    <b>Run the commands below in your terminal:</b>
+    <p>conda create -n iphyre python=3.10</p>
+    <p>conda activate iphyre</p>
+    <p>pip install numpy pygame pymunk</p>
+    <p>pip install iphyre</p>
+    </div>
+    <div class="box">
+    <h2>Step 2</h2>
+    <h2>Run the script</h2>
+    <p><b>Create a '.py' file and specify your name:</b></p>
+    <p>from iphyre.utils import collect_play_all</p>
+    <p>player_name = 'your_name'</p>
+    <p>collect_play_all(player_name, max_episode=5, save_path=f'./{player_name}.json')</p>
+
+    </div>
+    <div class="box">
+    <h2>Step 3</h2>
+    <h2>Submit the result</h2>
+    <p>Send the '.json' file to <b>lishiqian2001@gmail.com</b> or any other way you like.</p>
+    </div>
+</div>
+    
+<div class="title">
+    Basic Games
+</div>
+<div class="container">
+<img src="images/basic_angle.jpg" title="basic_angle" width="250" height="250" border="2">
+<img src="images/basic_direction.jpg" title="basic_direction" width="250" height="250" border="2">
+<img src="images/basic_fill.jpg" title="basic_fill" width="250" height="250" border="2">
+<img src="images/basic_hinder.jpg" title="basic_hinder" width="250" height="250" border="2">
+<img src="images/basic_hole.jpg" title="basic_hole" width="250" height="250" border="2">
+<img src="images/basic_impulse.jpg" title="basic_impulse" width="250" height="250" border="2">
+<img src="images/basic_pendulum.jpg" title="basic_pendulum" width="250" height="250" border="2">
+<img src="images/basic_seesaw.jpg" title="basic_seesaw" width="250" height="250" border="2">
+<img src="images/basic_spring.jpg" title="basic_spring" width="250" height="250" border="2">
+<img src="images/basic_support.jpg" title="basic_support" width="250" height="250" border="2">
+</div>
+
+<div class="title">
+    Compositional Games
+</div>
+<div class="container">
+<img src="images/compositional_activated_pendulum.jpg" title="compositional_activated_pendulum" width="250" height="250" border="2">
+<img src="images/compositional_hinder_fill.jpg" title="compositional_hinder_fill" width="250" height="250" border="2">
+<img src="images/compositional_impulse_pendulum.jpg" title="compositional_impulse_pendulum" width="250" height="250" border="2">
+<img src="images/compositional_impulse_spring.jpg" title="compositional_impulse_spring" width="250" height="250" border="2">
+<img src="images/compositional_more_step_hole.jpg" title="compositional_more_step_hole" width="250" height="250" border="2">
+<img src="images/compositional_seesaw_angle.jpg" title="compositional_seesaw_angle" width="250" height="250" border="2">
+<img src="images/compositional_spring_flick.jpg" title="compositional_spring_flick" width="250" height="250" border="2">
+<img src="images/compositional_support_direction.jpg" title="compositional_support_direction" width="250" height="250" border="2">
+<img src="images/compositional_support_hinder.jpg" title="compositional_support_hinder" width="250" height="250" border="2">
+<img src="images/compositional_support_hole.jpg" title="compositional_support_hole" width="250" height="250" border="2">
+</div>
+
+<div class="title">
+    Noisy Games
+</div>
+<div class="container">
+<img src="images/noisy_noisy_angle.jpg" title="noisy_noisy_angle" width="250" height="250" border="2">
+<img src="images/noisy_noisy_direction.jpg" title="noisy_noisy_direction" width="250" height="250" border="2">
+<img src="images/noisy_noisy_fill.jpg" title="noisy_noisy_fill" width="250" height="250" border="2">
+<img src="images/noisy_noisy_hinder.jpg" title="noisy_noisy_hinder" width="250" height="250" border="2">
+<img src="images/noisy_noisy_hole.jpg" title="noisy_noisy_hole" width="250" height="250" border="2">
+<img src="images/noisy_noisy_impulse.jpg" title="noisy_noisy_impulse" width="250" height="250" border="2">
+<img src="images/noisy_noisy_pendulum.jpg" title="noisy_noisy_pendulum" width="250" height="250" border="2">
+<img src="images/noisy_noisy_seesaw.jpg" title="noisy_noisy_seesaw" width="250" height="250" border="2">
+<img src="images/noisy_noisy_spring.jpg" title="noisy_noisy_spring" width="250" height="250" border="2">
+<img src="images/noisy_noisy_support.jpg" title="noisy_noisy_support" width="250" height="250" border="2">
+</div>
+
+<div class="title">
+    Multi_ball Games
+</div>
+<div class="container">
+<img src="images/multi_ball_lever.jpg" title="multi_ball_lever" width="250" height="250" border="2">
+<img src="images/multi_ball_multi_ball_angle.jpg" title="multi_ball_multi_ball_angle" width="250" height="250" border="2">
+<img src="images/multi_ball_multi_ball_fill.jpg" title="multi_ball_multi_ball_fill" width="250" height="250" border="2">
+<img src="images/multi_ball_multi_ball_hinder.jpg" title="multi_ball_multi_ball_hinder" width="250" height="250" border="2">
+<img src="images/multi_ball_multi_ball_hole.jpg" title="multi_ball_multi_ball_hole" width="250" height="250" border="2">
+<img src="images/multi_ball_multi_ball_pendulum.jpg" title="multi_ball_multi_ball_pendulum" width="250" height="250" border="2">
+<img src="images/multi_ball_multi_ball_spring.jpg" title="multi_ball_multi_ball_spring" width="250" height="250" border="2">
+<img src="images/multi_ball_multi_balls_spring_flick.jpg" title="multi_ball_multi_balls_spring_flick" width="250" height="250" border="2">
+<img src="images/multi_ball_redirect.jpg" title="multi_ball_redirect" width="250" height="250" border="2">
+<img src="images/multi_ball_stack.jpg" title="multi_ball_stack" width="250" height="250" border="2">
+</div>
 
 </body>
 </html>
