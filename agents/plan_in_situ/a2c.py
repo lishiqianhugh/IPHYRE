@@ -1,3 +1,6 @@
+
+import math
+import random
 import numpy as np
 import torch
 import torch.nn as nn
@@ -8,7 +11,9 @@ import timm
 import matplotlib.pyplot as plt
 from copy import deepcopy
 from iphyre.simulator import IPHYRE
+from iphyre.games import PARAS as game_paras
 import time
+import logging
 from train_online_RL import *
 import pdb
 import cv2
@@ -121,13 +126,13 @@ class A2C(nn.Module):
         done = False
         total_reward = 0
         iter = 0
-        while not done or iter < self.max_iter:
+        while (not done) and iter < self.max_iter:
             iter+=1
             state = torch.FloatTensor(state).reshape(1,-1).to(self.device)
             dist, _ = self._forward(state,input_actions)
             a = dist.sample()
             pos = actions[a]
-            next_state, reward, done = env.step(pos, time_step=self.game_time / self.max_iter, use_images=self.use_images)
+            next_state, reward, done = env.step(pos,use_images=self.use_images)
             state = next_state
             total_reward += reward
         return total_reward
@@ -159,7 +164,7 @@ class A2C(nn.Module):
                     dist, value = self._forward(state,input_actions)
                     a = dist.sample()
                     pos = actions[a]
-                    next_state, reward, done = env.step(pos, time_step=self.game_time / self.max_iter, use_images=self.use_images)
+                    next_state, reward, done = env.step(pos,use_images=self.use_images)
                     if(done):
                         next_state = env.reset(self.use_images)
                     log_prob = dist.log_prob(a)
@@ -178,6 +183,9 @@ class A2C(nn.Module):
 
                     if frame_idx % 100 == 0:
                         test_rewards.append(np.mean([self.test(env) for _ in range(10)]))
+                        info = f'Testing Game: {game} | Frame idx: {frame_idx} | Reward: {test_rewards[-1]}'
+                        print(info)
+                        logging.info(info)
                         
                 next_state = torch.FloatTensor(next_state).reshape(1,-1).to(self.device)
                 _, next_value = self._forward(next_state,input_actions)
@@ -198,8 +206,16 @@ class A2C(nn.Module):
                 loss.backward()
                 self.optimizer.step()
 
+            
+
+
 
 def plot(frame_idx, rewards):
     plt.plot(rewards,'b-')
     plt.title('frame %s. reward: %s' % (frame_idx, rewards[-1]))
     plt.pause(0.0001)
+
+
+
+
+

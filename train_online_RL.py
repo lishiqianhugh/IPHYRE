@@ -7,8 +7,10 @@ import argparse
 import optuna
 from agents.config.DQN_config import BaseConfig as DQNConfig
 from agents.config.A2C_config import BaseConfig as A2CConfig
+from agents.config.DDPG_config import BaseConfig as DDPGConfig
 from agents.plan_in_situ.DQN import *
-from agents.plan_in_situ.A2C import *
+from agents.plan_in_situ.a2c import *
+from agents.plan_in_situ.DDPG import *
 import os
 import pdb
 
@@ -19,7 +21,7 @@ def arg_parse():
     parser.add_argument('--mode', required=False, type=str, default='single',
                         choices=['single', 'within', 'cross'])
     parser.add_argument('--seed', type=int, help='training seed', default=0)
-    parser.add_argument('--model', type=str, help='model name', default='A2C')
+    parser.add_argument('--model', type=str, help='model name', default='DDPG')
 
     return parser.parse_args()
 
@@ -91,6 +93,8 @@ if __name__ == '__main__':
         config = DQNConfig()
     if(args.model == 'A2C'):
         config = A2CConfig()
+    if(args.model == 'DDPG'):
+        config = DDPGConfig()
     FOLD_LIST = ['basic', 'compositional', 'noisy', 'multi_ball']
     for FOLD in FOLD_LIST:
         FOLD_ID = FOLD_LIST.index(FOLD)
