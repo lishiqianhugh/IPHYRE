@@ -85,6 +85,7 @@ class A2C(nn.Module):
     def __init__(self,device,config):
         super(A2C, self).__init__()
         self.device = device
+        self.fps = config.fps
         self.max_iter = config.max_iter
         self.use_images = config.use_images
         self.game_time = config.game_time
@@ -114,34 +115,41 @@ class A2C(nn.Module):
             returns.insert(0, R)
         return returns
     
-    def test(self,env):
-        state = env.reset(self.use_images)
-        if self.use_images:
-                state = cv2.resize(state, dsize=(224, 224)).transpose((2, 0, 1))
-        else:
-            state[:, :5] /= 600
-        actions = env.get_action_space()
-        input_actions = (torch.FloatTensor((deepcopy(actions))) / 600)
-        input_actions = input_actions.reshape(1,-1).to(self.device)
-        done = False
-        total_reward = 0
-        iter = 0
-        while (not done) and iter < self.max_iter:
-            iter+=1
-            state = torch.FloatTensor(state).reshape(1,-1).to(self.device)
-            dist, _ = self._forward(state,input_actions)
-            a = dist.sample()
-            pos = actions[a]
-            next_state, reward, done = env.step(pos,use_images=self.use_images)
-            state = next_state
-            total_reward += reward
-        return total_reward
+    def test(self,games):
+        all_rewards = []
+        all_done = []
+        for game in games:
+            env = IPHYRE(game=game,fps=self.fps)
+            state = env.reset(self.use_images)
+            if self.use_images:
+                    state = cv2.resize(state, dsize=(224, 224)).transpose((2, 0, 1))
+            else:
+                state[:, :5] /= 600
+            actions = env.get_action_space()
+            input_actions = (torch.FloatTensor((deepcopy(actions))) / 600)
+            input_actions = input_actions.reshape(1,-1).to(self.device)
+            done = False
+            total_reward = 0
+            iter = 0
+            while (not done) and iter < self.max_iter:
+                iter+=1
+                state = torch.FloatTensor(state).reshape(1,-1).to(self.device)
+                dist, _ = self._forward(state,input_actions)
+                a = dist.sample()
+                pos = actions[a]
+                next_state, reward, done = env.step(pos,use_images=self.use_images)
+                state = next_state
+                total_reward += reward
+            all_rewards.append(total_reward)
+        return all_rewards
 
-    def train(self,train_split):
+    def train(self,train_split,mode):
+        best_test_rewards = []
         for game in train_split:
+            best_test_reward = -10000
             t1 = time.time()
             frame_idx = 0
-            env = IPHYRE(game=game)
+            env = IPHYRE(game=game,fps=self.fps)
             state = env.reset(self.use_images)
             if self.use_images:
                 state = cv2.resize(state, dsize=(224, 224)).transpose((2, 0, 1))
@@ -150,7 +158,6 @@ class A2C(nn.Module):
             actions = env.get_action_space()
             input_actions = (torch.FloatTensor((deepcopy(actions))) / 600)
             input_actions = input_actions.reshape(1,-1).to(self.device)
-            print(input_actions.shape)
             test_rewards = []
             while frame_idx < self.max_frames:
                 log_probs = []
@@ -181,11 +188,6 @@ class A2C(nn.Module):
                     else:
                         state[:, :5] /= 600
 
-                    if frame_idx % 100 == 0:
-                        test_rewards.append(np.mean([self.test(env) for _ in range(10)]))
-                        info = f'Testing Game: {game} | Frame idx: {frame_idx} | Reward: {test_rewards[-1]}'
-                        print(info)
-                        logging.info(info)
                         
                 next_state = torch.FloatTensor(next_state).reshape(1,-1).to(self.device)
                 _, next_value = self._forward(next_state,input_actions)
@@ -205,6 +207,21 @@ class A2C(nn.Module):
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+                
+                if frame_idx % 100 == 0:
+                    test_rewards+=self.test([game])
+                    info = f'Testing Game: {game} | Frame idx: {frame_idx} | Reward: {test_rewards[-1]}'
+                    print(info)
+                    logging.info(info)
+                    if best_test_reward < test_rewards[-1]:
+                        best_test_reward = test_rewards[-1]
+                    if len(test_rewards) > 5 and best_test_reward>0 and (best_test_reward == np.array(test_rewards[-5:])).all():
+                        break
+            
+            best_test_rewards.append(best_test_reward)
+        return best_test_rewards
+
+                
 
             
 

@@ -6,9 +6,10 @@ class BaseConfig(object):
         self.hidden_dim = 256
         self.game_time = 15.
         self.max_iter = 150
-        self.lr = 0.001
-        self.max_frames = 20000
-        self.num_steps = 5
+        self.lr = 0.00001
+        self.max_frames = 5000#100#10000
+        self.num_steps = 10
+        self.fps = 10
 
     def update(self, new_config):
         self.__dict__.update(new_config.__dict__)

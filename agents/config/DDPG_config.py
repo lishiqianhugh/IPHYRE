@@ -9,11 +9,12 @@ class BaseConfig(object):
         self.gamma = 0.99
         self.tau = 1e-2
         self.hidden_dim = 256
-        self.actor_lr = 1e-4
-        self.critic_lr = 1e-3
-        self.episode = 10000#10000
+        self.actor_lr = 1e-5
+        self.critic_lr = 1e-4
+        self.episode = 5000
         self.max_iter = 150
         self.game_time = 15.
+        self.fps = 10
 
     def update(self, new_config):
         self.__dict__.update(new_config.__dict__)

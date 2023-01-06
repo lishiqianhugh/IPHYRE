@@ -47,23 +47,23 @@ def run(config):
         logging.info(f'Fold: {FOLD}, Seed: {args.seed}')
         if args.mode == 'within':
             model = eval(args.model)(device,config)
-            model.train(TEST_SPLIT)
+            model.train(TEST_SPLIT,args.mode)
             test_rewards = model.test(TEST_SPLIT)
             all_test_rewards += test_rewards
         elif args.mode == 'cross':
             model = eval(args.model)(device,config)
-            model.train(TRAIN_SPLIT)
+            model.train(TRAIN_SPLIT,args.mode)
             test_rewards = model.test(TEST_SPLIT)
             all_test_rewards += test_rewards
         elif args.mode == 'single':
             for game in TEST_SPLIT:
                 model = eval(args.model)(device,config)
-                model.train([game])
-                test_rewards = model.test([game])
+                test_rewards = model.train([game],args.mode)
                 all_test_rewards += test_rewards
         else:
             raise ValueError(f'No such mode {args.mode}')
-    
+    write_csv(path=f'logs/plan_in_situ/{args.model}_{args.mode}_{config.use_images}.csv', contents=[GAMES, all_test_rewards])
+    print(all_test_rewards)
     return all_test_rewards
 
 def objective(trial):
@@ -82,7 +82,7 @@ DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
 #                     format=LOG_FORMAT, datefmt=DATE_FORMAT)
 if not os.path.exists('logs/plan_in_situ/'):
     os.makedirs('logs/plan_in_situ/')
-logging.basicConfig(filename=f'logs/plan_in_situ/{args.model}_{args.mode}.log', level=20,
+logging.basicConfig(filename=f'logs/plan_in_situ/{args.model}_{args.mode}_10time_final.log', level=20,
                      format=LOG_FORMAT, datefmt=DATE_FORMAT)
 logging.info(args)
 

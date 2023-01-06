@@ -132,6 +132,7 @@ class Memory:
 class DDPG:
     def __init__(self,device,config):
         # Params
+        self.fps = config.fps
         self.device = device
         self.batch_size = config.batch_size
         self.memory_capacity = config.memory_capacity
@@ -172,10 +173,10 @@ class DDPG:
     
     def update(self,batch_size,action_space,mask):
         states, actions, rewards, next_states, _ = self.memory.sample(batch_size)
-        states = torch.FloatTensor(states).squeeze(1).to(self.device)
-        actions = torch.FloatTensor(actions).squeeze(1).to(self.device)
-        rewards = torch.FloatTensor(rewards).to(self.device)
-        next_states = torch.FloatTensor(next_states).squeeze(1).to(self.device)
+        states = torch.FloatTensor(np.array(states)).squeeze(1).to(self.device)
+        actions = torch.FloatTensor(np.array(actions)).squeeze(1).to(self.device)
+        rewards = torch.FloatTensor(np.array(rewards)).to(self.device)
+        next_states = torch.FloatTensor(np.array(next_states)).squeeze(1).to(self.device)
         action_space = action_space.repeat(batch_size,1).detach().clone()
         # Critic loss        
         Qvals = self.critic.forward(states, actions)
@@ -205,8 +206,9 @@ class DDPG:
     
     def test(self,games):
         all_rewards = []
+        all_done = []
         for game in games:
-            env = IPHYRE(game=game)
+            env = IPHYRE(game=game,fps=self.fps)
             state = env.reset(self.use_images)
             action_length = len(game_paras[game]['eli'])
             if self.use_images:
@@ -219,14 +221,13 @@ class DDPG:
             done = False
             total_reward = 0
             iter = 0
-            state = env.reset()
             noise = OUNoise(self.device,self.n_actions)
             noise.reset()
             state = torch.FloatTensor(state).reshape(1,-1).to(self.device)
             mask = torch.arange(0,self.n_actions) < action_length
+            mask = mask.to(self.device)
             action_times = self.actor(state,input_actions)
             action_times = noise.get_action(action_times)* mask
-            iter = 0
             time_step = self.game_time / self.max_iter
             for time in np.arange(0,self.game_time,time_step):
                 if done: break
@@ -237,14 +238,17 @@ class DDPG:
                     pos = [0., 0.]
                 next_state, reward, done = env.step(pos,use_images=self.use_images)
                 total_reward += reward
+            all_done.append(done)
             all_rewards.append(total_reward)
         return all_rewards
 
-    def train(self,train_split):
+    def train(self,train_split,mode):
+        best_test_rewards = []
         for game in train_split:
-            frame_idx = 0
+          
+            best_test_reward = -10000
             action_length = len(game_paras[game]['eli'])
-            env = IPHYRE(game=game)
+            env = IPHYRE(game=game,fps=self.fps)
             state = env.reset(self.use_images)
             if self.use_images:
                 state = cv2.resize(state, dsize=(224, 224)).transpose((2, 0, 1))
@@ -255,40 +259,54 @@ class DDPG:
             input_actions = input_actions.reshape(1,-1).to(self.device)
             noise = OUNoise(self.device,self.n_actions)
             rewards = []
+            dones = []
             avg_rewards = []
             test_rewards = []
+            test_acc = []
             for episode in range(self.episode):
                 state = env.reset()
                 noise.reset()
                 episode_reward = 0
                 state = torch.FloatTensor(state).reshape(1,-1).to(self.device)
                 mask = torch.arange(0,self.n_actions) < action_length
+                mask = mask.to(self.device)
                 action_times = self.actor(state,input_actions)
                 action_times = noise.get_action(action_times)* mask
                 iter = 0
-                time_step = self.game_time / self.max_iter
+                time_step = 1 / self.fps
                 done = False
+                total_reward = 0
                 for time in np.arange(0,self.game_time,time_step):
                     if done: break
-                    if action_times[0][iter]!=0 and action_times[0][iter]*self.game_time >= time:
+                    #if(game == 'hinder'): pdb.set_trace()
+                    if action_times[0][iter]!=0 and action_times[0][iter]*self.game_time >= time and  action_times[0][iter]*self.game_time <= time + time_step:
                         iter+=1
                         pos = actions[iter]
+                        next_state, reward, done = env.step(pos,use_images=self.use_images)
                     else:
                         pos = [0., 0.]
-                    next_state, reward, done = env.step(pos,use_images=self.use_images)
+                        next_state, reward, done = env.step(pos,use_images=self.use_images)
+    
+                    total_reward += reward
                     
                 next_state = torch.FloatTensor(next_state).reshape(1,-1).to(self.device)
-                self.memory.push(state.detach().numpy(), action_times.detach().numpy(), reward, next_state.detach().numpy(), done)
+                self.memory.push(state.cpu().detach().numpy(), action_times.cpu().detach().numpy(), reward, next_state.cpu().detach().numpy(), done)
                 if len(self.memory) > self.batch_size:
                     self.update(self.batch_size,input_actions,mask)                    
-                sys.stdout.write("episode: {}, reward: {}, average _reward: {} \n".format(episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))
-                
-                rewards.append(reward)
+                #sys.stdout.write("episode: {}, reward: {}, average _reward: {} \n".format(episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))
+                dones.append(done)
+                rewards.append(total_reward)
                 avg_rewards.append(np.mean(rewards[-10:]))
+
                 if episode % 100 == 0:
-                        test_rewards.append(np.mean([self.test([game])[0] for _ in range(10)]))
-                        info = f'Testing Game: {game} | Frame idx: {frame_idx} | Reward: {test_rewards[-1]}'
-                        print(info)
-                        logging.info(info)
-                if test_rewards[-1]<np.mean(test_rewards):
-                    break
+                    test_rewards+=self.test([game])
+                    info = f'Evaluating Game: {game} | episode: {episode} | Reward: {test_rewards[-1]}'
+                    print(info)
+                    logging.info(info)
+                    if best_test_reward < test_rewards[-1]:
+                        best_test_reward = test_rewards[-1]
+                    if len(test_rewards) > 5 and best_test_reward>0 and (best_test_reward == np.array(test_rewards[-5:])).all():
+                        break
+            
+            best_test_rewards.append(best_test_reward)
+        return best_test_rewards
