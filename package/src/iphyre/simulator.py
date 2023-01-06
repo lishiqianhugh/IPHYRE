@@ -442,7 +442,7 @@ class IPHYRE():
                 if event.type == QUIT:
                     sys.exit(0)
                 elif event.type == KEYDOWN and event.key == K_n:
-                    if status in [2, 3] and episode == max_episode:
+                    if (status == 2 and episode == max_episode) or status == 3:
                         return
                 elif event.type == KEYDOWN and event.key == K_s:
                     if reset and episode < max_episode:
@@ -450,7 +450,7 @@ class IPHYRE():
                         p = [0., 0.]
                 elif event.type == KEYDOWN and event.key == K_r:
                     reset_require = True
-                    if reset_require and status in [2, 3] and episode < max_episode:
+                    if reset_require and status == 2 and episode < max_episode:
                         self.reset()
                         time_count, total_reward, actions = 0, 0, []
                         status = 0
@@ -494,11 +494,8 @@ class IPHYRE():
             elif status == 3:
                 self.add_text(text=f"Score in episode {episode} / {max_episode}: {round(total_reward, 2)}", 
                 loc=(120, 0), color="green", font=40)
-                if episode < max_episode:
-                    self.add_text(text=f"Press r to reset!", loc=(230, 30), color="black", font=30)
-                else:
-                    self.add_text(text=f"Press n to move on to the next game.",
-                    loc=(125, 30), color="black", font=30)
+                self.add_text(text=f"Press n to move on to the next game.",
+                loc=(125, 30), color="black", font=30)
             else:
                 pass
             self.space.debug_draw(self.draw_options)
