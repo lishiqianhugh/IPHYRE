@@ -60,16 +60,50 @@
 
 <div class="intro">
     <div class="main">
-        There are 40 different block elimination tasks of 4 folds (Basic, Compositional, Noisy and Multi_ball).
-        The goal is to make the <font color="#FF0000">red</font> balls drop into the abyss by eliminating some blocks.
-        The <font color="#8a8a8a">gray</font> and <b>black</b> blocks are static, and the <font color="#00c8ff">blue</font> blocks are dynamic.
-        Only the gray blocks can be eliminated.
+        IPHYRE benchmark contains 40 interactive physics games mainly consisting of <font color="#6a6a6a"><b>gray</b></font> blocks, <b>black</b> blocks, <font color="#00c8ff">blue</font> blocks, and <font color="#FF0000">red</font> balls. 
+        These games share the same goal of getting the <font color="#FF0000">red</font> balls into the abyss, which can be reached by eliminating <font color="#6a6a6a">gray</font> blocks (the only ones that can be eliminated). 
+        Besides the fixed static blocks (<font color="#6a6a6a"><b>gray</b></font> and <b>black</b>), we add dynamic <font color="#00c8ff">blue</font> blocks moving under gravity, springs, and rigid sticks to the environment to extensively enrich the physical dynamics.
     </div>
 </div>
 
 <div class="title">
     Play
 </div>
+
+<div class="intro">
+    <div class="main">
+        <h3>Instructions:</h3>
+        <li>Your only goal is to get all the red balls into the abyss by eliminating gray blocks. Click the center of the gray block to eliminate it.</li>
+        <li>These games have a strict time threshold of 15 seconds after which you will fail.</li>
+        <li>Players are encouraged to find the least time-consuming solution with the least possible effort. The rewards are designed as below.</li>
+        <table style="margin: 0 auto" border="1">
+            <tr>
+                <th>Event</th>
+                <th>Reward</th>
+                <th>Account</th>
+            </tr>
+            <tr>
+                <td style="text-align: center;">Forwarding one second</td>
+                <td style="text-align: center;">-10</td>
+                <td style="text-align: center;">Encourage time-efficiency</td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">Eliminating a block</td>
+                <td style="text-align: center;">-100</td>
+                <td style="text-align: center;">Encourage action-efficiency</td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">Reaching the goal</td>
+                <td style="text-align: center;">+500</td>
+                <td style="text-align: center;">Encourage problem-solving</td>
+            </tr>
+        </table>
+        <li>Refer to the introduction above for the properties of different bodies.</li>
+        <li>You will have a maximum of 5 chances to play each of these 40 games. The game will pass once you have succeeded.</li>
+        <li>Follow the steps below to start your play.</li>
+    </div>
+</div>
+
 
 <div class="container">
     <div class="box">
@@ -84,18 +118,14 @@
     <div class="box">
     <h2>Step 2</h2>
     <h2>Run the script</h2>
-    <p><b>Create a '.py' file and specify your name:</b></p>
-    <p>from iphyre.utils import collect_play_all</p>
-    <p>player_name = 'your_name'</p>
-    <p>collect_play_all(player_name, max_episode=5, save_path=f'./{player_name}.json')</p>
-    <p><b>You will have a maximum of 5 chances to play each of these 40 games. The game will pass once you have succeeded.</b></p>
-
+    <p><b>Download the <a href="https://drive.google.com/file/d/1PHqYt8y9uSvbs_3AjfKMTqnwrLW6G2Yd/view?usp=sharing">script</a> and run the command below (specify your name):</b></p>
+    <p>python collect_play_all.py your_name</p>
+    
     </div>
     <div class="box">
     <h2>Step 3</h2>
     <h2>Submit the result</h2>
-    <p>The rewards will be saved in {your_name}.json. We will appreciate it if you send the '.json' file to <b>lishiqian2001@gmail.com</b> or any other way you like to promote our human study.</p>
-    <p>Your can also use your data to participate in a competition, in which the top 3 players will be rewarded.</p>
+    <p>The rewards will be saved in {your_name}.json and then be automatically submitted to <b>2816425039@qq.com</b>. We appreciate your contribution for our human study.</p>
     </div>
 </div>
     
