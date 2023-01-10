@@ -20,14 +20,14 @@ def arg_parse():
                         choices=['basic', 'compositional', 'noisy', 'multi_ball'])
     parser.add_argument('--model', required=False, type=str, default='VisionFusion',
                         choices=['GlobalFusion', 'ObjectFusion', 'VisionFusion'])
-    # parser.add_argument('--mode', required=False, type=str, default='add',
-    #                     choices=['add', 'cat'])
+    parser.add_argument('--mode', required=False, type=str, default='add',
+                        choices=['add', 'cat'])
     parser.add_argument('--seed', type=int, help='training seed', default=0)
-    parser.add_argument('--epoch', type=int, help='training epoch', default=10)
+    parser.add_argument('--epoch', type=int, help='training epoch', default=50)
     parser.add_argument('--batch_size', type=int, help='batch size', default=16)
-    parser.add_argument('--alpha', type=float, help='weight of VF game paras', default=0.5053843079607675)
-    parser.add_argument('--beta', type=float, help='iweight of VF image', default=0.5132160195507073)
-    parser.add_argument('--lr', type=float, help='initial learning rate', default=0.0020040310212343974)
+    parser.add_argument('--alpha', type=float, help='weight of VF game paras', default=0.9)
+    parser.add_argument('--beta', type=float, help='weight of VF image', default=0.1)
+    parser.add_argument('--lr', type=float, help='initial learning rate', default=0.001)
     parser.add_argument('--save_interval', type=int, help='save after how many epochs', default=1)
 
     return parser.parse_args()
@@ -110,11 +110,11 @@ def objective(trial):
     lr = trial.suggest_float('lr', 0.002, 0.004)
     # model
     if args.model == 'GlobalFusion':
-        model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='cat')
+        model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode=args.mode)
     elif args.model == 'ObjectFusion':
-        model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=MAX_OBJ_NUM, mode='add')
+        model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=MAX_OBJ_NUM, mode=args.mode)
     elif args.model == 'VisionFusion':
-        model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, alpha=alpha, beta=beta, mode='add')
+        model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, alpha=alpha, beta=beta, mode=args.mode)
     else:
         ValueError(f'No such model {args.model}')
 
@@ -141,18 +141,18 @@ if __name__ == '__main__':
     # logging
     LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
     DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
-    logging.basicConfig(filename=f'logs/exp.log', level=20, format=LOG_FORMAT, datefmt=DATE_FORMAT)
+    logging.basicConfig(filename=f'logs/exp_debug.log', level=20, format=LOG_FORMAT, datefmt=DATE_FORMAT)
     logging.info(f'Fold: {args.fold} Seed: {args.seed}')
 
     setup_seed(args.seed)
-    train_set = IPHYREData(action_data_path='dataset/action_data_7s/',
-                           game_data_path='dataset/game_initial_data/',
+    train_set = IPHYREData(action_data_path='./data/action_data_s50_f50/',
+                           game_data_path='./data/game_initial_data/',
                            num_succeed=50,
                            num_fail=50,
                            fold=args.fold,
                            train=True)
-    test_set = IPHYREData(action_data_path='dataset/action_data_7s/',
-                          game_data_path='dataset/game_initial_data/',
+    test_set = IPHYREData(action_data_path='./data/action_data_s50_f50/',
+                          game_data_path='./data/game_initial_data/',
                           num_succeed=50,
                           num_fail=50,
                           fold=args.fold,
@@ -170,11 +170,11 @@ if __name__ == '__main__':
     else:
         # model
         if args.model == 'GlobalFusion':
-            model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode='cat')
+            model = GlobalFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, mode=args.mode)
         elif args.model == 'ObjectFusion':
-            model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=MAX_OBJ_NUM, mode='add')
+            model = ObjectFusion(game_dim=9, action_dim=1, hidden_dim=64, obj_num=MAX_OBJ_NUM, mode=args.mode)
         elif args.model == 'VisionFusion':
-            model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, alpha=args.alpha, beta=args.beta, mode='add')
+            model = VisionFusion(game_dim=12 * 9, action_dim=12, hidden_dim=256, alpha=args.alpha, beta=args.beta, mode=args.mode)
         else:
             ValueError(f'No such model {args.model}')
 

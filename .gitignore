@@ -6,6 +6,7 @@
 examples
 data
 logs
+player_data
 
 # User-specific stuff
 .git

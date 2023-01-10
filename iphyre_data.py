@@ -41,8 +41,8 @@ class IPHYREData(Dataset):
             body_property = np.load(self.game_data_path + game + '/vectors.npy')
             body_property[:, :5] /= 600  # normalize
             self.body_property.append([body_property] * self.action_num)
-            succeed_actions = np.load(self.action_data_path + game + f'/succeed_actions_{self.num_succeed}.npy')
-            fail_actions = np.load(self.action_data_path + game + f'/fail_actions_{self.num_fail}.npy')
+            succeed_actions = np.load(self.action_data_path + game + f'/succeed_actions.npy')
+            fail_actions = np.load(self.action_data_path + game + f'/fail_actions.npy')
             actions = np.concatenate((succeed_actions[:, :-3], fail_actions[:, :-3]))
             self.labels.append(np.concatenate((succeed_actions[:, -3:], fail_actions[:, -3:])))
             # complete action
@@ -161,28 +161,28 @@ class IPHYRESeqData(Dataset):
 
 
 if __name__ == '__main__':
-    # setup_seed(0)
-    # train_set = IPHYREData(action_data_path='action_data/',
-    #                        game_data_path='game_initial_data/',
-    #                        num_succeed=50,
-    #                        num_fail=50,
-    #                        fold='compositional',
-    #                        train=True)
-    # kwargs = {'pin_memory': True, 'num_workers': 0}
-    # train_loader = DataLoader(train_set, batch_size=16, shuffle=True, **kwargs)
-    # for initial_scenes, body_property, actions, label in train_loader:
-    #     print(initial_scenes.shape, body_property.shape, actions.shape, label.shape)
-    #     break
-
     setup_seed(0)
-    train_set = IPHYRESeqData(data_path='data/offline_data/', num_succeed=50, num_fail=50, fold='compositional')
+    train_set = IPHYREData(action_data_path='data/action_data_s50_f50/',
+                           game_data_path='data/game_initial_data/',
+                           num_succeed=50,
+                           num_fail=50,
+                           fold='compositional',
+                           train=True)
     kwargs = {'pin_memory': True, 'num_workers': 0}
     train_loader = DataLoader(train_set, batch_size=16, shuffle=True, **kwargs)
-    for game_names, initial_scenes, body_property, actions, returns_to_go, time_steps, body_num in train_loader:
-        print(len(game_names), initial_scenes.shape, body_property.shape, actions.shape, returns_to_go.shape, time_steps.shape, len(body_num))
-        # for a in actions[0]:
-        #     print(a)
-        # print(game_names)
-        # print(body_num)
-        print(returns_to_go.sum(-2))
+    for game_name, initial_scenes, body_property, actions, label in train_loader:
+        print(game_name, initial_scenes.shape, body_property.shape, actions.shape, label.shape)
         break
+
+    # setup_seed(0)
+    # train_set = IPHYRESeqData(data_path='data/offline_data/', num_succeed=50, num_fail=50, fold='compositional')
+    # kwargs = {'pin_memory': True, 'num_workers': 0}
+    # train_loader = DataLoader(train_set, batch_size=16, shuffle=True, **kwargs)
+    # for game_names, initial_scenes, body_property, actions, returns_to_go, time_steps, body_num in train_loader:
+    #     print(len(game_names), initial_scenes.shape, body_property.shape, actions.shape, returns_to_go.shape, time_steps.shape, len(body_num))
+    #     # for a in actions[0]:
+    #     #     print(a)
+    #     # print(game_names)
+    #     # print(body_num)
+    #     print(returns_to_go.sum(-2))
+    #     break

@@ -374,7 +374,7 @@ def read_json(path, mode='r'):
     with open(path, mode) as file:
         contents = []
         for line in file:
-            contents.append[json.loads(line)]
+            contents.append(json.loads(line))
     return contents
 
 def write_csv(path, contents, mode='a'):
@@ -432,13 +432,33 @@ def draw_barplot(csv_path='./analysis.csv', save_path='./analysis.pdf'):
     sns.move_legend(g, "upper center", ncol=3, title=None)
     g.savefig(save_path, dpi=600, bbox_inches='tight', pad_inches=0)
 
+def analysis_human_study(dir):
+    for path in os.listdir(dir):
+        print(f'{dir}/{path}')
+        contents = read_json(path=f'{dir}/{path}')
+        per_game_rewards = {}
+        game = contents[0]['game']
+        highest_reward = -10000
+        for content in contents:
+            if content['game'] != game:
+                game = content['game']
+                highest_reward = -10000
+            if content['reward'] > highest_reward:
+                highest_reward = content['reward']
+                per_game_rewards[game] = highest_reward
+        print(per_game_rewards)
+        per_fold_rewards = {}
+        for i, fold in enumerate(['basic', 'compositional', 'noisy', 'multi_ball']):
+            per_fold_rewards[fold] = sum(list(per_game_rewards.values())[i*10:(i+1)*10]) / 10
+        print(per_fold_rewards)
+            
 
 if __name__ == '__main__':
     # draw_bbox('../dataset/game_initial_data/spring_flick/spring_flick.jpg',
     #           '../dataset/game_initial_data/spring_flick/vectors.npy')
     # reorganize_images()
     # print_generated_actions()
-    jpg2gif(path='data/seq_data')
+    # jpg2gif(path='data/seq_data')
     # check()
     # write_csv(path='./test.csv', contents=[[1,2], [3,4]])
     # contents = read_csv(path='./test.csv')
@@ -447,4 +467,5 @@ if __name__ == '__main__':
     # avg_reward_from_csv(path='logs\plan_in_situ\DQN_single_False_1000_0.9_0.01_rewards.csv')
     # analyze_games_to_csv()
     # draw_barplot()
+    analysis_human_study(dir='scripts/player_data')
 
