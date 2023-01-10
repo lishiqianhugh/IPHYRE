@@ -1,4 +1,4 @@
 for fold in basic compositional noisy multi_ball
 do
-  python train.py --fold=$fold
+  python train_SL.py --fold=$fold
 done

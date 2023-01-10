@@ -12,7 +12,7 @@ logging.basicConfig(filename=f'generate.log', level=20, format=LOG_FORMAT, datef
 
 for i, game in enumerate(GAMES):
     num_succeed, num_fail = 50, 50
-    save_path = f'dataset/action_data_s{num_succeed}_f{num_fail}/{game}/'
+    save_path = f'data/action_data_s{num_succeed}_f{num_fail}/{game}/'
     if not os.path.exists(save_path):
         print(f'{i+1} / {len(GAMES)}')
         slist, flist, log = generate_actions(game,
@@ -26,7 +26,7 @@ for i, game in enumerate(GAMES):
         print(f'\nsucceed_list: {slist}')
         print(f'fail_list: {flist}\n')
 
-        logging.info(game + ': ' + log)
+        logging.info(f'{game} iter: {log}')
         os.makedirs(save_path)
         np.save(save_path + f'succeed_actions.npy', slist)
         np.save(save_path + f'fail_actions.npy', flist)
