@@ -118,11 +118,15 @@ class IPHYRE():
         for i, body in enumerate(self.space.bodies[:-self.num_ball]):
             shape = list(body.shapes)[0]
             x, y = body.position
-            min_0 = x - 10
-            max_0 = x + 10
-            min_1 = y - 10
-            max_1 = y + 10
-            if self.eli[i] == 1 and min_0 < p[0] < max_0 and min_1 < p[1] < max_1:
+            shape = list(body.shapes)[0]
+            a_x, a_y = shape.a[0], shape.a[1]
+            b_x, b_y = shape.b[0], shape.b[1]
+            x1, x2 = x + a_x, x + b_x
+            y1, y2 = y + a_y, y + b_y
+            length = np.linalg.norm(np.array([x1, y1]) - np.array([x2, y2]))
+            lv = np.array([x1 - x2, y1 - y2]) / length
+            pv = np.array([p[0] - x, p[1] - y])
+            if self.eli[i] == 1 and np.abs(np.dot(pv, lv)) < length /2 and np.abs(np.cross(pv, lv)) < 10:
                 self.space.remove(shape, shape.body)
                 for constraint in list(shape.body.constraints):
                     self.space.remove(constraint)
@@ -434,6 +438,7 @@ class IPHYRE():
         time_count, total_reward, actions = 0, 0, []
         status = 0
         reset = True
+        speedup = False
         episode = 0
         p = [0., 0.]
         while time_count < self.max_time:
@@ -455,11 +460,17 @@ class IPHYRE():
                         time_count, total_reward, actions = 0, 0, []
                         status = 0
                         reset = True
+                        speedup = False
+                elif event.type == KEYDOWN and event.key == K_e:
+                    if status == 1:
+                        speedup = True
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     p = event.pos
-
+            if speedup:
+                p = [0., 0.]
             if status == 0:
                 self.add_text(text=f"Press s to start!", loc=(230, 0), color="black", font=30)
+                self.add_text(text=f"Press e to end in advance!", loc=(180, 20), color="black", font=30)
             elif status == 1:
                 _, reward, done = self.step(p, self.timestep)
                 total_reward += reward
@@ -498,9 +509,10 @@ class IPHYRE():
                 loc=(125, 30), color="black", font=30)
             else:
                 pass
-            self.space.debug_draw(self.draw_options)
-            pygame.display.flip()
-            self.clock.tick(self.FPS)
+            if not (speedup and status == 1):
+                self.space.debug_draw(self.draw_options)
+                pygame.display.flip()
+                self.clock.tick(self.FPS)
 
     def add_text(self, text="Success!", loc=(230, 30), color="green", font=50):
         font = pygame.font.Font(None, font)
