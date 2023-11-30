@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+src/iphyre/__init__.py
+src/iphyre/games.py
+src/iphyre/simulator.py
+src/iphyre/utils.py
+src/iphyre.egg-info/PKG-INFO
+src/iphyre.egg-info/SOURCES.txt
+src/iphyre.egg-info/dependency_links.txt
+src/iphyre.egg-info/top_level.txt

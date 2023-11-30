@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "iphyre"
+version = "0.2.2"
+authors = [
+  { name="CoRe"},
+]
+description = "Benchmark for Interactive Physical Reasoning"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+[project.urls]
+"Homepage" = "https://lishiqianhugh.github.io/IPHYRE/"

@@ -1,0 +1,290 @@
+<style>
+    .home {
+        background-color: #ffffff;
+        text-align: center;
+        font-size: 50;
+        color: #000000;
+        scroll-margin-top: 60px;
+    }
+
+    .title {
+    	background-color: #4c4b4b;
+        text-align: center;
+        font-size: 30;
+        color: #ffffff;
+        scroll-margin-top: 60px;
+    }
+    .intro {
+
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        /* padding: 20px 300px 20px 300px; */
+        padding: 3% 10% 3% 10%;
+   }
+    .main {
+        font-size: 20;
+    }
+    .other {
+    	background-color: #8a8a8a;
+        text-align: center;
+        font-size: 20;
+        color: #ffffff;
+    }
+    .container {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 10px 80px;
+   }
+    .box {
+        /* position: relative; */
+        width: 320px;
+        background: #fff;
+        font-size: 15;
+        padding: 20px 40px 60px;
+        box-shadow: 0 15px 45px rgba(0,0,0,.1);
+    }
+    .navbar {
+            background-color: #4c4b4b;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+    .navbar a {
+        float: left;
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 20px;
+        text-decoration: none;
+    }
+    .navbar a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+    .content {
+        margin-top: 60px;
+    }
+    .video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 85%;
+}
+</style>
+
+<html>
+<body>
+
+    <div class="navbar">
+        <a href="#IPHYRE"><img src="images/logo.png" width = "80" height = "25"></a>
+        <a href="#Abstract">Abstract</a>
+        <a href="#Demo">Demo</a>
+        <a href="#Play">Play</a>
+        <a href="#Games">Games</a>
+        <a href="">Paper</a>
+        <a href="https://github.com/lishiqianhugh/IPHYRE">Code</a>
+        <a href="https://pypi.org/project/iphyre/">API</a>
+        <a href="https://pku.ai/">
+            <img src="images/core.png" width = "60" height = "25">
+        </a>
+    </div>
+
+    <div class="content"></div>
+
+    <div class="home"  id="IPHYRE">
+        <img src="images/page.png" width="1400">
+        <div><img src="images/logo.png" width = "100" height = "40"> Interactive Physical Reasoning</div>
+        <div><a style="font-size:30; color:#000000;"> ICLR 2024</a></div>
+        <!-- <a style="font-size:20; color:#00bfff;" href="https://github.com/lishiqianhugh/IPHYRE">Project</a> <a style="font-size:20; color:#FF0000;" href="https://vimeo.com/793260764/2f77f9d5cb">Video</a> -->
+    </div>
+        <!-- <div class="title">
+            Introduction
+        </div> -->
+    
+    <div class="intro">
+        <div class="main">
+            <i>I-PHYRE</i> benchmark contains 40 interactive physics games mainly consisting of <font color="#6a6a6a"><b>gray</b></font> blocks, <b>black</b> blocks, <font color="#00c8ff">blue</font> blocks, and <font color="#FF0000">red</font> balls.
+            These games share the same goal of getting the <font color="#FF0000">red</font> balls into the abyss, which can be reached by eliminating <font color="#6a6a6a">gray</font> blocks (the only ones that can be eliminated).
+            Besides the fixed static blocks (<font color="#6a6a6a"><b>gray</b></font> and <b>black</b>), we add dynamic <font color="#00c8ff">blue</font> blocks moving under gravity, springs, and rigid sticks to the environment to extensively enrich the physical dynamics.
+        </div>
+    </div>
+    
+    <div class="container">
+        <img src="images/gifs/angle.0.gif" width="300" height="300" border="2">
+        <img src="images/gifs/seesaw.0.gif" width="300" height="300" border="2">
+        <img src="images/gifs/fill.0.gif" width="300" height="300" border="2">
+        <img src="images/gifs/hole.0.gif" width="300" height="300" border="2">
+    </div>
+    
+    <div class="title" id="Abstract">
+        Abstract
+    </div>
+    
+    <div class="intro">
+        <div class="main">
+            Current evaluation protocols predominantly assess physical reasoning in <b>stationary</b> scenes, 
+            creating a gap in evaluating agents' abilities to interact with dynamic events. 
+            While contemporary methods allow agents to modify initial scene configurations and observe consequences, 
+            they lack the capability to <b>interact</b> with events in real time. To address this, we introduce <i>I-PHYRE</i>, 
+            a framework that challenges agents to simultaneously exhibit intuitive physical reasoning, multi-step planning, and in-situ intervention. 
+            Here, <b>intuitive physical reasoning</b> refers to a quick, approximate understanding of physics to address complex problems; 
+            <b>multi-step</b> denotes the need for extensive planning sequences in <i>I-PHYRE</i>, considering each intervention can significantly alter subsequent choices; 
+            and <b>in-situ</b> implies the necessity for timely object manipulation within a scene, where minor timing deviations can result in task failure. 
+            We formulate four game splits to scrutinize agents' learning and generalization of essential principles of interactive physical reasoning, 
+            fostering learning through interaction with representative scenarios. 
+            Our exploration involves three planning strategies and examines several supervised and reinforcement agents' zero-shot generalization proficiency on <i>I-PHYRE</i>. 
+            The outcomes highlight a notable gap between existing learning algorithms and human performance, 
+            emphasizing the imperative for more research in equipping agents with interactive physical reasoning capabilities. 
+        </div>
+    </div>
+
+    <div class="title" id="Demo">
+        Demo
+    </div>
+
+    <div style="padding:56.25% 0 0 0;position:relative;">
+        <iframe src="https://player.vimeo.com/video/793260764?h=2f77f9d5cb&amp;badge=0&amp;autopause=0&amp;quality_selector=1&amp;player_id=0&amp;app_id=58479"  
+        class="video"
+        id="Demo"
+        frameborder="0" 
+        allow="autoplay; fullscreen; picture-in-picture" 
+        title="I-PHYRE: On Interactivity in Physical Reasoning">
+        </iframe>
+    </div>
+    <script src="https://player.vimeo.com/api/player.js"></script>
+
+    <div class="title" id="Play">
+        Play
+    </div>
+    
+    <div class="intro">
+        <div class="main">
+            We recommend playing the games locally through a simple installation process to achieve real-time rendering and response.
+            <h3>Instructions:</h3>
+            <li>Your only goal is to get all the red balls into the abyss by eliminating gray blocks. Click the center of the gray block to eliminate it.</li>
+            <li>These games have a strict time threshold of 15 seconds after which you will fail.</li>
+            <li>Players are encouraged to find the least time-consuming solution with the least possible effort. The rewards are designed as below.</li>
+            <table style="margin: 0 auto" border="1">
+                <tr>
+                    <th>Event</th>
+                    <th>Reward</th>
+                    <th>Account</th>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">Forwarding one second</td>
+                    <td style="text-align: center;">-1</td>
+                    <td style="text-align: center;">Encourage time-efficiency</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">Eliminating a block</td>
+                    <td style="text-align: center;">-10</td>
+                    <td style="text-align: center;">Encourage action-efficiency</td>
+                </tr>
+                <tr>
+                    <td style="text-align: center;">Reaching the goal</td>
+                    <td style="text-align: center;">+1000</td>
+                    <td style="text-align: center;">Encourage problem-solving</td>
+                </tr>
+            </table>
+            <li>Refer to the introduction above for the properties of different bodies.</li>
+            <li>You will have a maximum of 5 chances to play each of these 40 games. The game will pass once you have succeeded.</li>
+            <li>Follow the steps below to start your play. It takes about 40 mins to finish all.</li>
+        </div>
+    </div>
+    
+    
+    <div class="container">
+        <div class="box">
+        <h2>Step 1</h2>
+        <h2>Set the environment</h2>
+        <b>Run the commands below in your terminal:</b>
+        <p>conda create -n iphyre python=3.10</p>
+        <p>conda activate iphyre</p>
+        <p>pip install numpy pygame pymunk</p>
+        <p>pip install iphyre</p>
+        </div>
+        <div class="box">
+        <h2>Step 2</h2>
+        <h2>Run the script</h2>
+        <p><b>Download the script and run the command below (specify your name):</b></p>
+        <p>python collect_play_all.py your_name</p>
+    
+        </div>
+        <div class="box">
+        <h2>Step 3</h2>
+        <h2>Save the result</h2>
+        <p>The rewards will be saved in {your_name}.json automatically.</p>
+        </div>
+    </div>
+    
+    <div class="title" id="Games">
+        Basic Games
+    </div>
+    <div class="container">
+    <img src="images/basic_angle.jpg" title="basic_angle" width="250" height="250" border="2">
+    <img src="images/basic_direction.jpg" title="basic_direction" width="250" height="250" border="2">
+    <img src="images/basic_fill.jpg" title="basic_fill" width="250" height="250" border="2">
+    <img src="images/basic_hinder.jpg" title="basic_hinder" width="250" height="250" border="2">
+    <img src="images/basic_hole.jpg" title="basic_hole" width="250" height="250" border="2">
+    <img src="images/basic_impulse.jpg" title="basic_impulse" width="250" height="250" border="2">
+    <img src="images/basic_pendulum.jpg" title="basic_pendulum" width="250" height="250" border="2">
+    <img src="images/basic_seesaw.jpg" title="basic_seesaw" width="250" height="250" border="2">
+    <img src="images/basic_spring.jpg" title="basic_spring" width="250" height="250" border="2">
+    <img src="images/basic_support.jpg" title="basic_support" width="250" height="250" border="2">
+    </div>
+    
+    <div class="title">
+        Noisy Games
+    </div>
+    <div class="container">
+    <img src="images/noisy_angle.jpg" title="noisy_angle" width="250" height="250" border="2">
+    <img src="images/noisy_direction.jpg" title="noisy_direction" width="250" height="250" border="2">
+    <img src="images/noisy_fill.jpg" title="noisy_fill" width="250" height="250" border="2">
+    <img src="images/noisy_hinder.jpg" title="noisy_hinder" width="250" height="250" border="2">
+    <img src="images/noisy_hole.jpg" title="noisy_hole" width="250" height="250" border="2">
+    <img src="images/noisy_impulse.jpg" title="noisy_impulse" width="250" height="250" border="2">
+    <img src="images/noisy_pendulum.jpg" title="noisy_pendulum" width="250" height="250" border="2">
+    <img src="images/noisy_seesaw.jpg" title="noisy_seesaw" width="250" height="250" border="2">
+    <img src="images/noisy_spring.jpg" title="noisy_spring" width="250" height="250" border="2">
+    <img src="images/noisy_support.jpg" title="noisy_support" width="250" height="250" border="2">
+    </div>
+    
+    <div class="title">
+        Compositional Games
+    </div>
+    <div class="container">
+    <img src="images/compositional_activated_pendulum.jpg" title="compositional_activated_pendulum" width="250" height="250" border="2">
+    <img src="images/compositional_hinder_fill.jpg" title="compositional_hinder_fill" width="250" height="250" border="2">
+    <img src="images/compositional_impulse_pendulum.jpg" title="compositional_impulse_pendulum" width="250" height="250" border="2">
+    <img src="images/compositional_impulse_spring.jpg" title="compositional_impulse_spring" width="250" height="250" border="2">
+    <img src="images/compositional_more_step_hole.jpg" title="compositional_more_step_hole" width="250" height="250" border="2">
+    <img src="images/compositional_seesaw_angle.jpg" title="compositional_seesaw_angle" width="250" height="250" border="2">
+    <img src="images/compositional_spring_flick.jpg" title="compositional_spring_flick" width="250" height="250" border="2">
+    <img src="images/compositional_support_direction.jpg" title="compositional_support_direction" width="250" height="250" border="2">
+    <img src="images/compositional_support_hinder.jpg" title="compositional_support_hinder" width="250" height="250" border="2">
+    <img src="images/compositional_support_hole.jpg" title="compositional_support_hole" width="250" height="250" border="2">
+    </div>
+    
+    <div class="title">
+        Multi_ball Games
+    </div>
+    <div class="container">
+    <img src="images/multi_ball_lever.jpg" title="multi_ball_lever" width="250" height="250" border="2">
+    <img src="images/multi_ball_angle.jpg" title="multi_ball_angle" width="250" height="250" border="2">
+    <img src="images/multi_ball_fill.jpg" title="multi_ball_fill" width="250" height="250" border="2">
+    <img src="images/multi_ball_hinder.jpg" title="multi_ball_hinder" width="250" height="250" border="2">
+    <img src="images/multi_ball_hole.jpg" title="multi_ball_hole" width="250" height="250" border="2">
+    <img src="images/multi_ball_pendulum.jpg" title="multi_ball_pendulum" width="250" height="250" border="2">
+    <img src="images/multi_ball_spring.jpg" title="multi_ball_spring" width="250" height="250" border="2">
+    <img src="images/multi_ball_spring_flick.jpg" title="multi_ball_spring_flick" width="250" height="250" border="2">
+    <img src="images/multi_ball_redirect.jpg" title="multi_ball_redirect" width="250" height="250" border="2">
+    <img src="images/multi_ball_stack.jpg" title="multi_ball_stack" width="250" height="250" border="2">
+    </div>
+</body>
+</html>
