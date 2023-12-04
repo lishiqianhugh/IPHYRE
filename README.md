@@ -45,6 +45,7 @@ We integrate the games into Gym with three planning strategies in [`IPHYREEnv.py
 ```
 python train_online_RL.py --strategy inadvance --model PPO --lr 1e-6 
 ```
+Checkpoints are [here](https://drive.google.com/file/d/1R_7rCtV_xFJ5-XSp8I--9FxeKyuBfft0/view?usp=sharing).
 
 If you are running a customized RL agent, you may want to obtain the intermediate states like this:
 ```
