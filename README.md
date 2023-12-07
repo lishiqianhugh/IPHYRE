@@ -2,14 +2,20 @@
 This is a project to explore **I**nteractive **PHY**sical **RE**asoning.
 
 <p align="left">
+     <a href='https://arxiv.org/abs/2312.03009'>
+      <img src='https://img.shields.io/badge/Paper-arXiv-green?style=plastic&logo=arXiv&logoColor=green' alt='Paper'>
+    </a>
      <a href='https://lishiqianhugh.github.io/IPHYRE/'>
       <img src='https://img.shields.io/badge/Web-Page-yellow?style=plastic&logo=Google%20chrome&logoColor=yellow' alt='Web'>
     </a>
+    <a href='https://pypi.org/project/iphyre/'>
+      <img src='https://img.shields.io/pypi/v/iphyre.svg?style=plastic&logo=pypi&logoColor=white' alt='PyPI'>
+    </a>
     <a href='https://vimeo.com/793260764/2f77f9d5cb'>
-      <img src='https://img.shields.io/badge/Video-Vimeo-green?style=plastic&logo=Google%20chrome&logoColor=green' alt='Video'>
+      <img src='https://img.shields.io/badge/Demo-Vimeo-blue?style=plastic&logo=Vimeo&logoColor=blue' alt='Demo'>
     </a>
     <a href='https://www.youtube.com/watch?v=Ko2ZIc9YypY'>
-      <img src='https://img.shields.io/badge/Games-YouTube-blue?style=plastic&logo=Google%20chrome&logoColor=blue' alt='YouTube Games'>
+      <img src='https://img.shields.io/badge/Games-YouTube-red?style=plastic&logo=youtube&logoColor=red' alt='YouTube Games'>
     </a>
 </p>
 
