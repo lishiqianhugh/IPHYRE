@@ -28,7 +28,7 @@ Run the commands below to set the environment and install the packages required 
 ```
 conda create -n iphyre python=3.10
 conda activate iphyre
-pip install numpy pygame pymunk ray
+pip install numpy pygame==2.1.2 pymunk ray
 pip install iphyre
 ```
 
