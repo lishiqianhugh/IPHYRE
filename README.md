@@ -43,7 +43,7 @@ env = IPHYRE(game='hole')
 env.play()
 ```
 
-You can get names and configurations aof all 40 games by `GAMES` and `PARAS`:
+You can get names and configurations of all 40 games by `GAMES` and `PARAS`:
 ```
 from iphyre.games import GAMES, PARAS
 ```
