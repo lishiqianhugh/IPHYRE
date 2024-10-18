@@ -8,6 +8,7 @@ import numpy as np
 import os
 from copy import deepcopy
 import json
+import math
 
 from iphyre.games import PARAS, MAX_OBJ_NUM, MAX_ELI_OBJ_NUM
 
@@ -45,10 +46,10 @@ class IPHYRE():
 
         self.joint = None
         if 'joint' in PARAS[self.game].keys():
-            self.joint = PARAS[self.game]['joint']
+            self.joint = deepcopy(PARAS[self.game]['joint'])
         self.spring = None
         if 'spring' in PARAS[self.game].keys():
-            self.spring = PARAS[self.game]['spring']
+            self.spring = deepcopy(PARAS[self.game]['spring'])
 
     def add_ball(self, b_pos, radius, mass, elasticity, friction):
         moment = pymunk.moment_for_circle(mass, 0, radius)
@@ -134,6 +135,15 @@ class IPHYRE():
                 self.eli_mask.pop(i)
                 self.dynamic.pop(i)
                 self.shape.pop(i)
+                if 'joint' in PARAS[self.game].keys():
+                    self.joint = [pair for pair in self.joint if i not in pair]
+                    for pair in self.joint:
+                        pair[:] = [idx - 1 if idx > i else idx for idx in pair]
+
+                if 'spring' in PARAS[self.game].keys():
+                    self.spring = [pair for pair in self.spring if i not in pair]
+                    for pair in self.spring:
+                        pair[:] = [idx - 1 if idx > i else idx for idx in pair]
                 return i
         return -1
 
@@ -157,22 +167,31 @@ class IPHYRE():
         """
         x, y = body.position
         shape = list(body.shapes)[0]
+        angle = body.angle
         if shape_flag:
             r = 10
             a_x, a_y = shape.a[0], shape.a[1]
             b_x, b_y = shape.b[0], shape.b[1]
-            x1, x2 = x + a_x, x + b_x
-            y1, y2 = y + a_y, y + b_y
+            rot_a_x = a_x * math.cos(angle) - a_y * math.sin(angle)
+            rot_a_y = a_x * math.sin(angle) + a_y * math.cos(angle)
+            
+            rot_b_x = b_x * math.cos(angle) - b_y * math.sin(angle)
+            rot_b_y = b_x * math.sin(angle) + b_y * math.cos(angle)
+            x1, y1 = x + rot_a_x, y + rot_a_y
+            x2, y2 = x + rot_b_x, y + rot_b_y
             prop = [x1, y1, x2, y2, r, self.eli[idx], self.dynamic[idx], 0, 0]
         else:
             r = shape.radius
             prop = [x, y, x, y, r, self.eli[idx], self.dynamic[idx], 0, 0]
         if 'joint' in PARAS[self.game].keys():
-            if idx in sum(PARAS[self.game]['joint'], []):
-                prop[-2] = 1
+            for j_idx, pair in enumerate(self.joint, start=1):
+                if idx in pair:
+                    prop[-2] = j_idx  # Store the joint index instead of 0/1 flag
+
         if 'spring' in PARAS[self.game].keys():
-            if idx in sum(PARAS[self.game]['spring'], []):
-                prop[-1] = 1
+            for s_idx, pair in enumerate(self.spring, start=1):
+                if idx in pair:
+                    prop[-1] = s_idx  # Store the spring index instead of 0/1 flag
         return prop
     
     def get_all_property(self):
@@ -214,6 +233,10 @@ class IPHYRE():
             self.space.remove(joint)
         if self.screen:
             self.screen.fill((255, 255, 255))
+        if 'joint' in PARAS[self.game].keys():
+            self.joint = deepcopy(PARAS[self.game]['joint'])
+        if 'spring' in PARAS[self.game].keys():
+            self.spring = deepcopy(PARAS[self.game]['spring'])
         self.add_all()
         self.shape = [1] * len(self.blocks) + [0] * len(self.balls)
         self.eli = deepcopy(PARAS[self.game]['eli'])
